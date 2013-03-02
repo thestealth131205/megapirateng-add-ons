@@ -87,6 +87,15 @@
 #define SAVE_TRIM_LEDS 1
 
 
+///paku - define LEDs on startup - could be changed in Mission Planner
+#define LEDS_MOTORS 1
+#define LEDS_GPS 2
+#define LEDS_AUX 4
+#define LEDS_BEEPER 8
+#define LEDS_OSCILLATE 16
+#define LEDS_MOTORS_ON_NAV 32
+#define LEDS_GPS_ON_NAV 64
+
 // Internal defines, don't edit and expect things to work
 // -------------------------------------------------------
 
@@ -399,7 +408,8 @@ enum gcs_severity {
 #define RELAY_APM2_PIN 13
 #define RELAY_CRIUSV2_PIN 46
 
-#define PIEZO_PIN AN5           //Last pin on the back ADC connector
+//#define PIEZO_PIN AN5           //Last pin on the back ADC connector
+#define PIEZO_PIN 35           ///pku D35
 
 // RADIANS
 #define RADX100 0.000174532925

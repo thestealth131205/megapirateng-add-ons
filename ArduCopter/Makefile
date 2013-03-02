@@ -1,4 +1,4 @@
-include ../libraries/AP_Common/Arduino.mk
+include ../libraries/AP_Common/Arduino.cygwin.mk
 
 nologging:
 	make -f Makefile EXTRAFLAGS="-DLOGGING_ENABLED=DISABLED"
