@@ -11,6 +11,7 @@
 // - busy lock - while in transmission - makes code few CPU ticks/time faster ....
 // - period changed to 200ms (as in FrSky docs)
 // - "altitude after period" frame bytes enabled 
+// - moved to 10Hz loop
 // Editing:
 // - functions calls rearranged - commented out moved to the end of file.
 // - source text auto formatted
@@ -21,11 +22,17 @@
 // Armed			- XXXX
 // GPS Fix			- XXXXXX
 // Home Set			- XXXXXXXX
+// ****************************************************************
+// 02.03.2013 by paku
+// Temperature Calibration added
 
 #if OSD_PROTOCOL == OSD_PROTOCOL_FRSKY
 
 // user defines
 //#define FAS_100  //if commment out, MultiWii vBat voltage will be send instead of FrSky FAS 100 voltage
+
+// Data Calibration (just for FrSky LCD dipslay)
+#define CALIB_TEMP -3.5  // degC 
 
 // Serial config datas
 #define TELEMETRY_FRSKY_SERIAL 1
@@ -81,9 +88,11 @@ static uint8_t LockMe = 0x00;
 #define ID_Gyro_Z             0x42
 
 // Main function FrSky telemetry
-void telemetry_frsky() {
+void telemetry_frsky()
+{
 	uint32_t currentTime = micros();
-	if (currentTime > FrSkyTime) {
+	if (currentTime > FrSkyTime)
+	{
 		LockMe = 0xff;
 		FrSkyTime = currentTime + Time_telemetry_send;
 		cycleCounter++;
@@ -92,7 +101,8 @@ void telemetry_frsky() {
 		//send_Accel();
 		//sendDataTail();   
 
-		if ((cycleCounter % 4) == 0) {
+		if ((cycleCounter % 4) == 0)
+		{
 			// Datas sent every 4*Time_telemetry_send
 			send_Time();
 			send_Altitude();
@@ -102,7 +112,8 @@ void telemetry_frsky() {
 			sendDataTail();
 
 		}
-		if ((cycleCounter % 8) == 0) {
+		if ((cycleCounter % 8) == 0)
+		{
 			// Datas sent every 8*Time_telemetry_send           
 			//send_GPS_altitude();
 			//send_Voltage_ampere();
@@ -111,7 +122,8 @@ void telemetry_frsky() {
 			sendDataTail();
 		}
 
-		if (cycleCounter == MaxCounter) {
+		if (cycleCounter == MaxCounter)
+		{
 			// Datas sent every 25*Time_telemetry_send
 			send_Temperature1();
 			sendDataTail();
@@ -121,15 +133,18 @@ void telemetry_frsky() {
 	}
 }
 
-void write_FrSky8_internal(uint8_t Data) {
+void write_FrSky8_internal(uint8_t Data)
+{
 	Serial1.write(Data);
 }
 
-void write_FrSky8(uint8_t Data) {
+void write_FrSky8(uint8_t Data)
+{
 	check_FrSky_stuffing(Data);
 }
 
-void write_FrSky16(uint16_t Data) {
+void write_FrSky16(uint16_t Data)
+{
 	uint8_t Data_send;
 	Data_send = Data;
 	check_FrSky_stuffing(Data_send);
@@ -137,24 +152,32 @@ void write_FrSky16(uint16_t Data) {
 	check_FrSky_stuffing(Data_send);
 }
 
-void check_FrSky_stuffing(uint8_t Data) {
-	if (Data == 0x5E) {
+void check_FrSky_stuffing(uint8_t Data)
+{
+	if (Data == 0x5E)
+	{
 		write_FrSky8_internal(0x5D);
 		write_FrSky8_internal(0x3E);
-	} else if (Data == 0x5D) {
+	}
+	else if (Data == 0x5D)
+	{
 		write_FrSky8_internal(0x5D);
 		write_FrSky8_internal(0x3D);
-	} else {
+	}
+	else
+	{
 		write_FrSky8_internal(Data);
 	}
 }
 
-static void sendDataHead(uint8_t Data_id) {
+static void sendDataHead(uint8_t Data_id)
+{
 	write_FrSky8_internal(Protocol_Header);
 	write_FrSky8_internal(Data_id);
 }
 
-static void sendDataTail(void) {
+static void sendDataTail(void)
+{
 	write_FrSky8_internal(Protocol_Tail);
 }
 
@@ -163,7 +186,8 @@ static void sendDataTail(void) {
 //*********************************************************************************
 
 // Voltage (Ampere Sensor) 
-void send_Voltage_ampere(void) {
+void send_Voltage_ampere(void)
+{
 	uint16_t Datas_Voltage_Amp_bp;
 	uint16_t Datas_Voltage_Amp_ap;
 	uint16_t Datas_Current;
@@ -183,27 +207,36 @@ void send_Voltage_ampere(void) {
 }
 
 // Temperature 1
-void send_Temperature1(void) {
+void send_Temperature1(void)
+{
 	sendDataHead(ID_Temprature1);
-	write_FrSky16(barometer.get_temperature() / 10);
+	write_FrSky16(((barometer.get_temperature()+(10*CALIB_TEMP))/10));
 }
 
 // Temperature 2
-void send_Temperature2(void) {
+void send_Temperature2(void)
+{
 	sendDataHead(ID_Temprature2);
-	if (g_gps->status() == GPS::GPS_OK) {
-		if (g_gps->fix) {
+	if (g_gps->status() == GPS::GPS_OK)
+	{
+		if (g_gps->fix)
+		{
 			write_FrSky16(g_gps->num_sats + 100); // GPS sat count, value > 100 mean 3D Fix
-		} else {
+		}
+		else
+		{
 			write_FrSky16(g_gps->num_sats); // GPS sat count, value > 100 mean 3D Fix
 		}
-	} else {
+	}
+	else
+	{
 		write_FrSky16(-1);  // GPS disabled
 	}
 }
 
 // Altitude
-void send_Altitude(void) {
+void send_Altitude(void)
+{
 	int16_t Datas_altitude_bp;
 	uint16_t Datas_altitude_ap;
 
@@ -219,14 +252,16 @@ void send_Altitude(void) {
 }
 
 // RPM
-void send_RPM(void) {
+void send_RPM(void)
+{
 	sendDataHead(ID_RPM);
 	write_FrSky16(0);
 }
 
 // Fuel level 
 //only 5 states [0,25,50,75,100]%
-void send_Fuel_level(void) {
+void send_Fuel_level(void)
+{
 
 	uint16_t Datas_Fuel_level;
 
@@ -234,9 +269,11 @@ void send_Fuel_level(void) {
 	//Datas_Fuel_level = (cycleCounter % 5) * 25;
 
 	Datas_Fuel_level = 25;  						//1st quater for power
-	if (ap.armed) {
+	if (ap.armed)
+	{
 		Datas_Fuel_level += 25;               	//2nd for arming 
-		if (g_gps->fix) {
+		if (g_gps->fix)
+		{
 			Datas_Fuel_level += 25;    			//3rd for the fix.
 			if (ap.home_is_set)
 				Datas_Fuel_level += 25;    		//4rd for home set.
@@ -248,8 +285,10 @@ void send_Fuel_level(void) {
 }
 
 // GPS speed
-void send_GPS_speed(void) {
-	if (g_gps->fix) {
+void send_GPS_speed(void)
+{
+	if (g_gps->fix)
+	{
 		float gps_speed_ms = g_gps->ground_speed * 0.01;
 
 		sendDataHead(ID_GPS_speed_bp);
@@ -260,7 +299,8 @@ void send_GPS_speed(void) {
 }
 
 // GPS position
-void send_GPS_position(void) {
+void send_GPS_position(void)
+{
 	uint16_t Datas_Longitude_bp;
 	uint16_t Datas_Longitude_ap;
 	uint16_t Datas_E_W;
@@ -292,7 +332,8 @@ void send_GPS_position(void) {
 }
 
 // Time
-void send_Time(void) {
+void send_Time(void)
+{
 	uint32_t seconds_since_start = millis() / 1000;
 
 	sendDataHead(ID_Hour_Minute);
@@ -355,15 +396,18 @@ void send_Time(void) {
  }*/
 
 // OSD Initialization
-void osd_init() {
+void osd_init()
+{
 	Serial1.begin(9600);
 }
 
-void osd_heartbeat_50Hz() {
+void osd_heartbeat_50Hz()
+{
 
 }
 
-void osd_heartbeat_10Hz() {
+void osd_heartbeat_10Hz()
+{
 	if (!LockMe)
 		telemetry_frsky();
 }
