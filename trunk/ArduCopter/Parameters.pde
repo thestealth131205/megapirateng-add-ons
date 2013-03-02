@@ -538,9 +538,10 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Description: bitmap to control the copter led mode
     // @Values: 0:Disabled,1:Enable,2:GPS On,4:Aux,8:Buzzer,16:Oscillate,32:Nav Blink,64:GPS Nav Blink
     // @User: Standard
-    GSCALAR(copter_leds_mode,       "LED_MODE",         9),
-
-    // PID controller
+    /// paku remove GSCALAR(copter_leds_mode,       "LED_MODE",         9),
+    GSCALAR(copter_leds_mode,       "LED_MODE",         LEDS_STARTUP_MODE),
+    
+    		// PID controller
     //---------------
     GGROUP(pid_rate_roll,     "RATE_RLL_", AC_PID),
     GGROUP(pid_rate_pitch,    "RATE_PIT_", AC_PID),

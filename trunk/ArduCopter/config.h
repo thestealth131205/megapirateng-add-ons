@@ -269,10 +269,10 @@
 #define COPTER_LED_7 AN14 	// Motor LED
 #define COPTER_LED_8 AN15 	// Motor LED
 #elif CONFIG_APM_HARDWARE == APM_HARDWARE_PIRATES
-#define COPTER_LED_1 A4		// Motor or Aux LED
+#define COPTER_LED_1 A3		// Motor or Aux LED ///pku
 #define COPTER_LED_2 A5		// Motor LED
-#define COPTER_LED_3 A6		// Motor or GPS LED
-#define COPTER_LED_4 A7		// Motor LED
+#define COPTER_LED_3 A4		// Motor or GPS LED
+#define COPTER_LED_4 NOT_A_PIN 		// Motor LED
 #define COPTER_LED_5 NOT_A_PIN		// Pin not available on Pirate boards
 #define COPTER_LED_6 NOT_A_PIN		// Pin not available on Pirate boards
 #define COPTER_LED_7 NOT_A_PIN		// Pin not available on Pirate boards

@@ -125,8 +125,8 @@
 #include "GCS.h"
 
 #if PIRATES_SENSOR_BOARD == PIRATES_CRIUS_AIO_PRO_V2
-	#include <SPI.h>			// Arduino SPI lib
-	#include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
+#include <SPI.h>			// Arduino SPI lib
+#include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #endif
 
 #include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
@@ -289,9 +289,12 @@ static AP_Int8                *flight_modes = &g.flight_mode1;
 	#elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
 		AP_GPS_UBLOX    g_gps_driver(&Serial2);
 
-	#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
-		AP_GPS_MTK      g_gps_driver(&Serial2);
-
+	///#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
+	///	AP_GPS_MTK      g_gps_driver(&Serial2);
+	
+	#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK16
+		AP_GPS_MTK16      g_gps_driver(&Serial2);
+	
 	#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK19
 		AP_GPS_MTK19    g_gps_driver(&Serial2);
 
@@ -300,6 +303,7 @@ static AP_Int8                *flight_modes = &g.flight_mode1;
 
 	#elif GPS_PROTOCOL == GPS_PROTOCOL_BLACKVORTEX
 		AP_GPS_BLACKVORTEX  g_gps_driver(&Serial2);
+		
 		
 	#else
 		#error Unrecognised GPS_PROTOCOL setting.

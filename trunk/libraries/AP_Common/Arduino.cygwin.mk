@@ -378,7 +378,7 @@ SKETCHEEP		=	$(BUILDROOT)/$(SKETCH).eep
 SKETCHMAP		=	$(BUILDROOT)/$(SKETCH).map
 
 # The core library
-##CORELIB			=	$(shell cygpath -m $(BUILDROOT))/$(HARDWARE)/core.a
+###CORELIB			=	$(shell cygpath -m $(BUILDROOT))/$(HARDWARE)/core.a
 CORELIB			=	$(BUILDROOT)/$(HARDWARE)/core.a
 
 # All of the objects that may be built
@@ -393,9 +393,10 @@ endif
 #
 
 all:	$(SKETCHELF) $(SKETCHEEP) $(SKETCHHEX)
-
+	@echo "### Build Done ###"
 upload: $(SKETCHHEX)
 	$(AVRDUDE) -c $(UPLOAD_PROTOCOL) -p $(MCU) -P $(PORT) -b$(UPLOAD_SPEED) -U flash:w:$(shell cygpath -m $(SKETCHHEX)):i
+	@echo "### Upload Done ###"
 
 configure:
 	$(warning WARNING - A $(SKETCHBOOK)/config.mk file has been written)

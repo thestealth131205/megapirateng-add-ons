@@ -18,14 +18,14 @@
 // RC configuration
 
 // PPM_SUM(CPPM) Signal processing
-#define SERIAL_PPM SERIAL_PPM_DISABLED
+#define SERIAL_PPM SERIAL_PPM_ENABLED
 /*
 	SERIAL_PPM_DISABLED
 	SERIAL_PPM_ENABLED				// For all boards, PPM_SUM pin is A8
 	SERIAL_PPM_ENABLED_PL1		// Use for CRIUS AIOP Pro v2,
 */
 
-#define TX_CHANNEL_SET	TX_mwi
+#define TX_CHANNEL_SET	TX_JR
 /*
 	TX_set1							//Graupner/Spektrum												PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,CAMPITCH,CAMROLL
 	TX_standard					//standard  PPM layout Robbe/Hitec/Sanwa	ROLL,PITCH,THROTTLE,YAW,MODE,AUX2,CAMPITCH,CAMROLL
@@ -43,13 +43,13 @@
 
 // Warning: COPTER_LEDS is not compatible with LED_SEQUENCER, so enable only one option
 // Connect LEDs to A4 - A7
-//#define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
+#define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
 #define MAX_SONAR_RANGE 400
 
 // This OSD works on the Serial1 port
-#define OSD_PROTOCOL OSD_PROTOCOL_NONE
+#define OSD_PROTOCOL OSD_PROTOCOL_FRSKY
 /*
 	OSD_PROTOCOL_NONE
 	OSD_PROTOCOL_SYBERIAN
@@ -58,8 +58,7 @@
 */
 
 // For BlackVortex, just set PIRATES_SENSOR_BOARD as PIRATES_BLACKVORTEX, GPS will be selected automatically
-#define GPS_PROTOCOL GPS_PROTOCOL_NONE 
-//GPS_PROTOCOL_NONE
+#define GPS_PROTOCOL GPS_PROTOCOL_MTK19
 /*
 	GPS_PROTOCOL_NONE 	without GPS
 	GPS_PROTOCOL_NMEA
@@ -76,9 +75,25 @@
 
 // New in 2.0.43, but unused in MegairateNG
 // MPNG: Piezo uses AN5 pin in ArduCopter, we uses AN5 for CLI switch
-#define PIEZO	DISABLED	
-#define PIEZO_LOW_VOLTAGE	DISABLED
-#define PIEZO_ARMING		DISABLED
+///#define PIEZO	DISABLED
+///#define PIEZO_LOW_VOLTAGE	DISABLED
+///#define PIEZO_ARMING		DISABLED
+
+///paku - define LEDs on startup - could be changed later in Mission Planner
+// Join options by "+" sign
+//if you change LED_MODE in Mission Planer you will not be able to change it back to these values.
+
+#define LEDS_STARTUP_MODE 		LEDS_MOTORS + LEDS_BEEPER + LEDS_GPS
+/*
+	LEDS_MOTORS
+	LEDS_GPS
+	LEDS_AUX
+	LEDS_BEEPER
+	LEDS_OSCILLATE
+	LEDS_MOTORS_ON_NAV
+	LEDS_GPS_ON_NAV
+*/
+
 
 #define FRAME_CONFIG QUAD_FRAME
 /*
@@ -98,7 +113,7 @@
  *  V_FRAME
 */
 
-# define CH7_OPTION		CH7_DO_NOTHING
+# define CH7_OPTION		CH7_SAVE_TRIM
 /*
  *  CH7_DO_NOTHING
  *  CH7_FLIP
