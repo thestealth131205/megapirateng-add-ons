@@ -588,13 +588,10 @@ void APM_RC_PIRATES::clearOverride(void)
 	}
 }
 
-// get the time of the last radio update (_last_update modified by interrupt, so reading of variable must be interrupt safe)
-uint32_t APM_RC_PIRATES::get_last_update() {
-    
-    uint32_t _tmp = _last_update;
-    while( _tmp != _last_update ) _tmp = _last_update;
 
-    return _tmp;
+uint32_t APM_RC_PIRATES::get_last_update() {
+
+    return _last_update;
 }; 
 
 #endif // defined(ATMega1280)
