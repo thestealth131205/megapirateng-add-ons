@@ -28,13 +28,20 @@
 #define FS_ENABLED ENABLED
 
 // PPM_SUM filtering
-#define FILTER FILTER_DISABLE
+#define FILTER FILTER_AVERAGE
 /*
 	FILTER_DISABLED
 	FILTER_AVERAGE
 	FILTER_JITTER
 */
 #define JITTER_THRESHOLD 4
+#define AVARAGE_FACTOR 1 		//changes the influance of the current meassured value to the final filter value -
+								//bigger means less influance
+								//min.value 1, resonable [1,2], uneven is faster [1]
+#if (AVARAGE_FACTOR < 1)
+# error Wrong AVARAGE_FACTOR selected. Minimum value 1
+#endif
+
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
 # error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
@@ -91,8 +98,9 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 			#if FILTER == FILTER_DISABLED
 				rcPinValueRAW[pps_num] = dTime;
 			#elif FILTER == FILTER_AVERAGE 
-				dTime += rcPinValueRAW[pps_num];
-				rcPinValueRAW[pps_num] = dTime>>1;
+				//dTime += rcPinValueRAW[pps_num];
+				//rcPinValueRAW[pps_num] = dTime>>1;
+				rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
 			#elif FILTER == FILTER_JITTER 
 				if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
 					rcPinValueRAW[pps_num] = dTime;
@@ -149,8 +157,9 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 				#if FILTER == FILTER_DISABLED
 					rcPinValueRAW[pps_num] = dTime;
 				#elif FILTER == FILTER_AVERAGE 
-					dTime += rcPinValueRAW[pps_num];
-					rcPinValueRAW[pps_num] = dTime>>1;
+					//dTime += rcPinValueRAW[pps_num];
+					//rcPinValueRAW[pps_num] = dTime>>1;
+					rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
 				#elif FILTER == FILTER_JITTER 
 					if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
 						rcPinValueRAW[pps_num] = dTime;
