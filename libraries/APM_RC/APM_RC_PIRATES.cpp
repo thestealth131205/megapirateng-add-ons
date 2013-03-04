@@ -258,9 +258,9 @@ APM_RC_PIRATES::APM_RC_PIRATES(int _use_ppm, int _bv_mode, uint8_t *_pin_map)
 	pinRcChannel = _pin_map; // Channel mapping
 	// Fill default RC values array, set 900 for Throttle channel and 1500 for others
 	for (uint8_t i=0; i<NUM_CHANNELS; i++) {
-			rcPinValue[i] = 1500;
-			rcPinValueRAW[i] = 1500;
-		}
+		rcPinValue[i] = 1500;
+		rcPinValueRAW[i] = 1500;
+	}
 	rcPinValue[pinRcChannel[2]] = MIN_PULSEWIDTH;
 	rcPinValueRAW[pinRcChannel[2]] = MIN_PULSEWIDTH;
 }
@@ -463,8 +463,7 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 {
 	uint16_t result;
 
-	result = rcPinValue[pinRcChannel[ch]]; // Let's copy the data Atomically
-	while( result != rcPinValue[pinRcChannel[ch]] ) result = rcPinValue[pinRcChannel[ch]];
+	result = rcPinValue[pinRcChannel[ch]];
 
 	#if FS_ENABLED == ENABLED	
 		if(failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
@@ -590,7 +589,6 @@ void APM_RC_PIRATES::clearOverride(void)
 
 
 uint32_t APM_RC_PIRATES::get_last_update() {
-
     return _last_update;
 }; 
 
