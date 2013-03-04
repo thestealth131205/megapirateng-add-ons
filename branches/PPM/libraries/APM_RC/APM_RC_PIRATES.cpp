@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED ENABLED
+#define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
 #define FILTER FILTER_AVERAGE
