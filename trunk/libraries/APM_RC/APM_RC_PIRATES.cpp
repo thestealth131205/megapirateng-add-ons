@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED ENABLED
+#define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
 #define FILTER FILTER_AVERAGE
@@ -588,13 +588,10 @@ void APM_RC_PIRATES::clearOverride(void)
 	}
 }
 
-// get the time of the last radio update (_last_update modified by interrupt, so reading of variable must be interrupt safe)
-uint32_t APM_RC_PIRATES::get_last_update() {
-    
-    uint32_t _tmp = _last_update;
-    while( _tmp != _last_update ) _tmp = _last_update;
 
-    return _tmp;
+uint32_t APM_RC_PIRATES::get_last_update() {
+
+    return _last_update;
 }; 
 
 #endif // defined(ATMega1280)

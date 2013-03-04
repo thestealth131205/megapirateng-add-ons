@@ -79,9 +79,10 @@
 ///#define PIEZO_LOW_VOLTAGE	DISABLED
 ///#define PIEZO_ARMING		DISABLED
 
-///paku - define LEDs on startup - could be changed later in Mission Planner
+///paku - define LEDs on FIRST firmware upload - could be changed later in Mission Planner
 // Join options by "+" sign
 //if you change LED_MODE in Mission Planer you will not be able to change it back to these values.
+//but only by parameters save,text edit and reload in MP.
 
 #define LEDS_STARTUP_MODE 		LEDS_MOTORS + LEDS_BEEPER + LEDS_GPS
 /*
