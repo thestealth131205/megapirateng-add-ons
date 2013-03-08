@@ -25,16 +25,23 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED ENABLED
+#define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
-#define FILTER FILTER_DISABLE
+#define FILTER FILTER_AVERAGE
 /*
 	FILTER_DISABLED
 	FILTER_AVERAGE
 	FILTER_JITTER
 */
 #define JITTER_THRESHOLD 4
+#define AVARAGE_FACTOR 1 		//changes the influance of the current meassured value to the final filter value -
+								//bigger means less influance
+								//min.value 1, resonable [1,2], uneven is faster [1]
+#if (AVARAGE_FACTOR < 1)
+# error Wrong AVARAGE_FACTOR selected. Minimum value 1
+#endif
+
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
 # error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
@@ -91,8 +98,9 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 			#if FILTER == FILTER_DISABLED
 				rcPinValueRAW[pps_num] = dTime;
 			#elif FILTER == FILTER_AVERAGE 
-				dTime += rcPinValueRAW[pps_num];
-				rcPinValueRAW[pps_num] = dTime>>1;
+				//dTime += rcPinValueRAW[pps_num];
+				//rcPinValueRAW[pps_num] = dTime>>1;
+				rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
 			#elif FILTER == FILTER_JITTER 
 				if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
 					rcPinValueRAW[pps_num] = dTime;
@@ -149,8 +157,9 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 				#if FILTER == FILTER_DISABLED
 					rcPinValueRAW[pps_num] = dTime;
 				#elif FILTER == FILTER_AVERAGE 
-					dTime += rcPinValueRAW[pps_num];
-					rcPinValueRAW[pps_num] = dTime>>1;
+					//dTime += rcPinValueRAW[pps_num];
+					//rcPinValueRAW[pps_num] = dTime>>1;
+					rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
 				#elif FILTER == FILTER_JITTER 
 					if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
 						rcPinValueRAW[pps_num] = dTime;
@@ -197,39 +206,46 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	// generic split PPM  
 	// mask is pins [D0-D7] that have changed // the principle is the same on the MEGA for PORTK and [A8-A15] PINs
 	// chan = pin sequence of the port. chan begins at D2 and ends at D7
-	if (mask & 1<<0)
+	if (mask & 1<<0) {
 		if (!(pin & 1<<0)) {
 			dTime = (cTime-edgeTime[0])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[0] = dTime;
 		} else edgeTime[0] = cTime;
-	if (mask & 1<<1)
+	}
+	if (mask & 1<<1) {
 		if (!(pin & 1<<1)) {
 			dTime = (cTime-edgeTime[1])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[1] = dTime;
 		} else edgeTime[1] = cTime;
-	if (mask & 1<<2) 
+	}
+	if (mask & 1<<2) { 
 		if (!(pin & 1<<2)) {
 			dTime = (cTime-edgeTime[2])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[2] = dTime;
 		} else edgeTime[2] = cTime;
-	if (mask & 1<<3)
+	}
+	if (mask & 1<<3) {
 		if (!(pin & 1<<3)) {
 			dTime = (cTime-edgeTime[3])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[3] = dTime;
 		} else edgeTime[3] = cTime;
-	if (mask & 1<<4) 
+	}
+	if (mask & 1<<4) {
 		if (!(pin & 1<<4)) {
 			dTime = (cTime-edgeTime[4])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[4] = dTime;
 		} else edgeTime[4] = cTime;
-	if (mask & 1<<5)
+	}
+	if (mask & 1<<5) {
 		if (!(pin & 1<<5)) {
 			dTime = (cTime-edgeTime[5])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[5] = dTime;
 		} else edgeTime[5] = cTime;
-	if (mask & 1<<6)
+	}
+	if (mask & 1<<6) {
 		if (!(pin & 1<<6)) {
 			dTime = (cTime-edgeTime[6])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[6] = dTime;
 		} else edgeTime[6] = cTime;
-	if (mask & 1<<7)
+	}
+	if (mask & 1<<7) {
 		if (!(pin & 1<<7)) {
 			dTime = (cTime-edgeTime[7])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[7] = dTime;
 		} else edgeTime[7] = cTime;
-	
+	}
 	// failsafe counter must be zero if all ok  
 	if (mask & 1<<pinRcChannel[2]) {    // If pulse present on THROTTLE pin, clear FailSafe counter  - added by MIS fow multiwii (copy by SovGVD to megapirateNG)
 		failsafeCnt = 0;
@@ -249,9 +265,9 @@ APM_RC_PIRATES::APM_RC_PIRATES(int _use_ppm, int _bv_mode, uint8_t *_pin_map)
 	pinRcChannel = _pin_map; // Channel mapping
 	// Fill default RC values array, set 900 for Throttle channel and 1500 for others
 	for (uint8_t i=0; i<NUM_CHANNELS; i++) {
-			rcPinValue[i] = 1500;
-			rcPinValueRAW[i] = 1500;
-		}
+		rcPinValue[i] = 1500;
+		rcPinValueRAW[i] = 1500;
+	}
 	rcPinValue[pinRcChannel[2]] = MIN_PULSEWIDTH;
 	rcPinValueRAW[pinRcChannel[2]] = MIN_PULSEWIDTH;
 }
@@ -454,8 +470,7 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 {
 	uint16_t result;
 
-	result = rcPinValue[pinRcChannel[ch]]; // Let's copy the data Atomically
-	while( result != rcPinValue[pinRcChannel[ch]] ) result = rcPinValue[pinRcChannel[ch]];
+	result = rcPinValue[pinRcChannel[ch]];
 
 	#if FS_ENABLED == ENABLED	
 		if(failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
@@ -579,13 +594,9 @@ void APM_RC_PIRATES::clearOverride(void)
 	}
 }
 
-// get the time of the last radio update (_last_update modified by interrupt, so reading of variable must be interrupt safe)
-uint32_t APM_RC_PIRATES::get_last_update() {
-    
-    uint32_t _tmp = _last_update;
-    while( _tmp != _last_update ) _tmp = _last_update;
 
-    return _tmp;
+uint32_t APM_RC_PIRATES::get_last_update() {
+    return _last_update;
 }; 
 
 #endif // defined(ATMega1280)
