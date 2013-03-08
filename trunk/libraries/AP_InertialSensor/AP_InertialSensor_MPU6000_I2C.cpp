@@ -118,8 +118,6 @@ const uint8_t AP_InertialSensor_MPU6000_I2C::_temp_data_index = 3;
 uint32_t AP_InertialSensor_MPU6000_I2C::_micros_per_sample = 20000;
 uint32_t AP_InertialSensor_MPU6000_I2C::_micros_per_sample_pre = 20000;
 
-static uint8_t _product_id;
-
 uint8_t AP_InertialSensor_MPU6000_I2C::_board_Type = PIRATES_FREEIMU_4;
 int AP_InertialSensor_MPU6000_I2C::mpu_addr = 0;
 
@@ -283,36 +281,29 @@ bool AP_InertialSensor_MPU6000_I2C::read(uint32_t tnow)
 
 	uint8_t _status = 0;
 	
-	// Data ready?
-	if (I2c.read(mpu_addr, MPUREG_INT_STATUS, 1, &_status) != 0) { 
-		return false;
-	}
-	if (_status && 1) {
-		_ins_timer = tnow;
+	_ins_timer = tnow;
+
+	// now read the data
+	uint8_t rawMPU[14];
 	
-		// now read the data
-		uint8_t rawMPU[14];
-		
-		if (I2c.read(mpu_addr, MPUREG_ACCEL_XOUT_H, 14, rawMPU) != 0) {
-			return true;
-		}
-		
-		_sum[0] += (((int16_t)rawMPU[0])<<8) | rawMPU[1]; // Accel X
-		_sum[1] += (((int16_t)rawMPU[2])<<8) | rawMPU[3]; // Accel Y
-		_sum[2] += (((int16_t)rawMPU[4])<<8) | rawMPU[5]; // Accel Z
-//		_sum[3] += (((int16_t)rawMPU[6])<<8) | rawMPU[7]; // Temperature
-		_sum[4] += (((int16_t)rawMPU[8])<<8) | rawMPU[9]; // Gyro X
-		_sum[5] += (((int16_t)rawMPU[10])<<8) | rawMPU[11]; // Gyro Y
-		_sum[6] += (((int16_t)rawMPU[12])<<8) | rawMPU[13]; // Gyro Z
-	
-		_count++;
-		if (_count == 0) {
-			// rollover - v unlikely
-			memset((void*)_sum, 0, sizeof(_sum));
-		}
+	if (I2c.read(mpu_addr, MPUREG_ACCEL_XOUT_H, 14, rawMPU) != 0) {
 		return true;
-	} else
-		return false;
+	}
+	
+	_sum[0] += (((int16_t)rawMPU[0])<<8) | rawMPU[1]; // Accel X
+	_sum[1] += (((int16_t)rawMPU[2])<<8) | rawMPU[3]; // Accel Y
+	_sum[2] += (((int16_t)rawMPU[4])<<8) | rawMPU[5]; // Accel Z
+//		_sum[3] += (((int16_t)rawMPU[6])<<8) | rawMPU[7]; // Temperature
+	_sum[4] += (((int16_t)rawMPU[8])<<8) | rawMPU[9]; // Gyro X
+	_sum[5] += (((int16_t)rawMPU[10])<<8) | rawMPU[11]; // Gyro Y
+	_sum[6] += (((int16_t)rawMPU[12])<<8) | rawMPU[13]; // Gyro Z
+
+	_count++;
+	if (_count == 0) {
+		// rollover - v unlikely
+		memset((void*)_sum, 0, sizeof(_sum));
+	}
+	return true;
 }
 
 void AP_InertialSensor_MPU6000_I2C::hardware_init(Sample_rate sample_rate)
@@ -343,20 +334,20 @@ void AP_InertialSensor_MPU6000_I2C::hardware_init(Sample_rate sample_rate)
 			rate = MPUREG_SMPLRT_50HZ;
 			default_filter = BITS_DLPF_CFG_20HZ;
 			_micros_per_sample = 20000;
-			_micros_per_sample_pre = 19000;
+			_micros_per_sample_pre = 19900;
 			break;
 		case RATE_100HZ:
 			rate = MPUREG_SMPLRT_100HZ;
 			default_filter = BITS_DLPF_CFG_42HZ;
 			_micros_per_sample = 10000;
-			_micros_per_sample_pre = 9000;
+			_micros_per_sample_pre = 9900;
 			break;
 		case RATE_200HZ:
 		default:
 			rate = MPUREG_SMPLRT_200HZ;
 			default_filter = BITS_DLPF_CFG_42HZ;
 			_micros_per_sample = 5000;
-			_micros_per_sample_pre = 4000;
+			_micros_per_sample_pre = 4900;
 			break;
 		}
     
