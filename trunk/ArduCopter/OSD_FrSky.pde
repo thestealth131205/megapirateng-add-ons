@@ -25,6 +25,10 @@
 // ****************************************************************
 // 02.03.2013 by paku
 // Temperature Calibration added
+// ****************************************************************
+// 08.03.2013 by paku
+// "Pirate state" ver. 2.8R3 compatibility added
+// - uncomment/replace 2.8R3 version inside the void send_Fuel_level(void) code
 
 #if OSD_PROTOCOL == OSD_PROTOCOL_FRSKY
 
@@ -269,13 +273,15 @@ void send_Fuel_level(void)
 	//Datas_Fuel_level = (cycleCounter % 5) * 25;
 
 	Datas_Fuel_level = 25;  						//1st quater for power
-	if (ap.armed)
+	if (ap.armed)        // ver.2.9.x
+	//if (motors.armed())  // ver.2.8.x
 	{
 		Datas_Fuel_level += 25;               	//2nd for arming 
 		if (g_gps->fix)
 		{
 			Datas_Fuel_level += 25;    			//3rd for the fix.
-			if (ap.home_is_set)
+			if (ap.home_is_set) // ver.2.9.x
+			//if (home_is_set)  // ver.2.8.x
 				Datas_Fuel_level += 25;    		//4rd for home set.
 		}
 	}
