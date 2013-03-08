@@ -122,43 +122,6 @@ test_eedump(uint8_t argc, const Menu::arg *argv)
 }
 
 
-static int8_t
-test_radio_pwm(uint8_t argc, const Menu::arg *argv)
-{
-	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
-		print_test_disabled();
-		return (0);
-	#else
-		print_hit_enter();
-		delay(1000);
-
-		while(1){
-			delay(20);
-
-			// Filters radio input - adjust filters in the radio.pde file
-			// ----------------------------------------------------------
-			read_radio();
-
-			// servo Yaw
-			//APM_RC.OutputCh(CH_7, g.rc_4.radio_out);
-
-			cliSerial->printf_P(PSTR("IN: 1: %d\t2: %d\t3: %d\t4: %d\t5: %d\t6: %d\t7: %d\t8: %d\n"),
-								g.rc_1.radio_in,
-								g.rc_2.radio_in,
-								g.rc_3.radio_in,
-								g.rc_4.radio_in,
-								g.rc_5.radio_in,
-								g.rc_6.radio_in,
-								g.rc_7.radio_in,
-								g.rc_8.radio_in);
-
-			if(cliSerial->available() > 0){
-				return (0);
-			}
-		}
-	#endif
-}
-
 /*
  *  //static int8_t
  *  //test_tri(uint8_t argc, const Menu::arg *argv)
@@ -1124,4 +1087,44 @@ static void print_test_disabled()
  *                               (motor_out[CH_4]   - g.rc_3.radio_min));
  *  }
 */
+
+static int8_t
+test_radio_pwm(uint8_t argc, const Menu::arg *argv)
+{
+	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
+		print_test_disabled();
+		return (0);
+	#else
+		print_hit_enter();
+		delay(1000);
+		while(1){
+						delay(20);
+
+			// Filters radio input - adjust filters in the radio.pde file
+			// ----------------------------------------------------------
+			read_radio();
+
+			// servo Yaw
+			//APM_RC.OutputCh(CH_7, g.rc_4.radio_out);
+			if (ap_system.new_radio_frame) {
+				cliSerial->printf_P(PSTR("%d,%d,%d,%d,%d,%d,%d,%d\n"),
+								g.rc_1.radio_in,
+								g.rc_2.radio_in,
+								g.rc_3.radio_in,
+								g.rc_4.radio_in,
+								g.rc_5.radio_in,
+								g.rc_6.radio_in,
+								g.rc_7.radio_in,
+								g.rc_8.radio_in);
+			} else {
+				cliSerial->printf_P(PSTR("***** No signal\n"));
+			}
+			ap_system.new_radio_frame = false;
+			
+			if(cliSerial->available() > 0){
+				return (0);
+			}
+		}
+	#endif
+}
 #endif // CLI_ENABLED

@@ -16,8 +16,8 @@ Programming instructions:
 entry format (2 numbers) A,B,
 A - timespan in 1/50 of one second
 B - LED channels ON mask  LED_1,CH,2...LED_8 delimited by | sign
-if LEDs should be off, put LED_OFF instead
-Last record should end by 0,LED_OFF,   - this is mandatory!
+if LEDs should be off, put LED_OFF_ALL instead
+Last record should end by 0,LED_OFF_ALL,   - this is mandatory!
 
 */
 
@@ -31,7 +31,7 @@ Last record should end by 0,LED_OFF,   - this is mandatory!
 #define LED_6 32
 #define LED_7 64
 #define LED_8 128
-#define LED_OFF 0
+#define LED_OFF_ALL 0
 
 
 // Define Pin numbers for LEDs (unused LED channels should be commented
@@ -58,35 +58,35 @@ const byte led_seq1[]= // 2 short 1, 2 short 2, led 4 constantly on
 			2,		 LED_4,
 			2,	LED_2|LED_4,
 			20,		 LED_4,
-			0,	LED_OFF,
+			0,	LED_OFF_ALL,
 		};
 
 // LED program # 2
 const byte led_seq2[]= // 2 short 1, 2 short 2
 		{	2,	LED_1,
-			2,	LED_OFF,
+			2,	LED_OFF_ALL,
 			2,	LED_1,
-			10,	LED_OFF,
+			10,	LED_OFF_ALL,
 			2,	LED_2,
-			2,	LED_OFF,
+			2,	LED_OFF_ALL,
 			2,	LED_2,
-			10,	LED_OFF,
-			0,	LED_OFF,
+			10,	LED_OFF_ALL,
+			0,	LED_OFF_ALL,
 		};
 		
 
 // LED program # 3
 const byte led_seq3[]= // 1,2,4 blinks fast
 		{	1,	LED_1|LED_2|LED_4,
-			1,	LED_OFF,
-			0,	LED_OFF,
+			1,	LED_OFF_ALL,
+			0,	LED_OFF_ALL,
 		};
 
 // LED program # 4
 const byte led_seq4[]= // all the LEDs blinks at 1Hz
 		{	10,	LED_1|LED_2|LED_3|LED_4|LED_5|LED_6|LED_7|LED_8,
-			10,	LED_OFF,
-			0,	LED_OFF,
+			10,	LED_OFF_ALL,
+			0,	LED_OFF_ALL,
 		};
 
 
@@ -131,46 +131,45 @@ led_hb=0;
 
 
 void sq_led_heartbeat(void) // 20Hz loop led sequencer
-{ static long tmp=0,rc_ts=0;
-static int tmp2=0,tmp01=0,tmp02=0;
+{ 
+static long tmp=0,rc_ts=0;
+static uint8_t tmp2=0,tmp01=0,tmp02=0;
 static byte led_ena=1;
 
 tmp=millis();
-
 
 // sequencer
 // mode selection and load the program
 
 tmp2=APM_RC.InputCh(SQ_LED_CH-1); // read the RC value
-if (tmp2>1500) tmp01=1; else tmp01=0;
+if (tmp2>1500)
+	tmp01=1; 
+else 
+	tmp01=0;
 if (tmp01!=tmp02) //only toggle states
 	{
 	if (tmp01==0) {rc_ts=tmp;led_ena=0;}
 	else { // enable indication or load a new program when  off pulse shorter than 1 sec
-                  led_ena=1;
-		if ((tmp-rc_ts)>1000) {sq_led_sqnum=0;}// just ON
-		else { //load a new sequence (4 programs)
-			sq_led_prognum++;sq_led_prognum&=3;
-				sq_led_sqnum=0;
+    led_ena=1;
+		if ((tmp-rc_ts)>1000) {
+			sq_led_sqnum=0; // just ON
+		}
+		else 
+		{ //load a new sequence (4 programs)
+			sq_led_prognum++;
+			sq_led_prognum&=3;
+			sq_led_sqnum=0;
 			switch(sq_led_prognum)
 				{
 				case 0:for (tmp2=0;tmp2<sizeof(led_seq1);tmp2++) sq_led_seq[tmp2]=led_seq1[tmp2]; break;
 				case 1:for (tmp2=0;tmp2<sizeof(led_seq2);tmp2++) sq_led_seq[tmp2]=led_seq2[tmp2]; break;
 				case 2:for (tmp2=0;tmp2<sizeof(led_seq3);tmp2++) sq_led_seq[tmp2]=led_seq3[tmp2]; break;
 				case 3:for (tmp2=0;tmp2<sizeof(led_seq4);tmp2++) sq_led_seq[tmp2]=led_seq4[tmp2]; break;
-				
-				
 				}
 			}
-	
-	
-	
-	
 		}
 	}
 tmp02=tmp01;
-
-
 // end mode selection
 
 

@@ -63,9 +63,9 @@ class AP_Compass_HMC5843_Pirates : public Compass
   public:
 	AP_Compass_HMC5843_Pirates() : Compass() {}
   bool init(AP_PeriodicProcess *scheduler);
-	virtual bool init(void) {};
-	virtual bool read(void);
-	virtual void set_orientation(enum Rotation rotation);
+	bool init() { return false; };
+	bool read(void);
+	void set_orientation(enum Rotation rotation);
 	static bool _updated;
 	static bool _update(uint32_t tnow);
 	void accumulate(void);
