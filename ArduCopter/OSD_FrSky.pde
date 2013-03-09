@@ -27,8 +27,8 @@
 // Temperature Calibration added
 // ****************************************************************
 // 08.03.2013 by paku
-// "Pirate state" ver. 2.8R3 compatibility added
-// - uncomment/replace 2.8R3 version inside the void send_Fuel_level(void) code
+// "Pirate state" ver. 2.8Rx compatibility added
+// - uncomment/replace 2.8Rx version inside the send_Fuel_level(void) code
 
 #if OSD_PROTOCOL == OSD_PROTOCOL_FRSKY
 
