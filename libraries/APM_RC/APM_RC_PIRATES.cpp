@@ -342,28 +342,28 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	DDRK = 0;  // defined PORTK as a digital port ([A8-A15] are consired as digital PINs and not analogical)
 	switch (use_ppm)
 	{
-		case 0:
+		case SERIAL_PPM_DISABLED:
 					FireISRRoutine = _pwm_mode_isr;
 					PORTK = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); //enable internal pull ups on the PINs of PORTK
 					PCMSK2 = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); // enable interrupts on A8-A15 pins;
 					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
 					break;
-		case 1:  
+		case SERIAL_PPM_ENABLED:  
 					FireISRRoutine = _ppmsum_mode_isr;
 					PORTK = (1<<PCINT16); //enable internal pull up on the SERIAL SUM pin A8
 					PCMSK2 |= (1 << PCINT16); // Enable int for pin A8(PCINT16)
 					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
 					break;
-		case 2:
+		case SERIAL_PPM_ENABLED_PL1:
 					FireISRRoutine = 0;
 					pinMode(48, INPUT); // ICP5 pin (PL1) (PPM input) CRIUS v2
 					isr_reg->register_signal(ISR_REGISTRY_TIMER5_CAPT, _timer5_capt_cb );
-					TCCR5B = (1<<CS11) | (1<<ICES5); //Prescaler set to 8, resolution of 0.5us, input capture on rising edge 
+					TCCR5B |= (1<<ICES5); // Input capture on rising edge 
 					TIMSK5 |= (1<<ICIE5); // Enable Input Capture interrupt. Timer interrupt mask  
 					PCMSK2 = 0;	// Disable INT for pin A8-A15
 					break;
 	}
-	TIMSK5 |= (1 << OCIE5B); // Enable compareB interrupt, used in Gimbal PWM generator
+	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
 }
 
 uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800,};
@@ -508,8 +508,8 @@ uint8_t APM_RC_PIRATES::GetState(void)
 		if (failsafe_enabled) {
 			if(failsafeCnt < FS_THRESHOLD) 
 				failsafeCnt++;
-			else
-				return(1); // Force Good State in order send failsafe values to APM
+			else 
+				_tmp = true; // Force Good State in order send failsafe values to APM
 		}
 	#endif
 
