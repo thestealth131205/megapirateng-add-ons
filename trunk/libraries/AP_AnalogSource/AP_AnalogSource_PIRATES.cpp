@@ -44,7 +44,7 @@ ISR(PCINT0_vect)
 			sonar_data=(uint32_t)TCNT5+((uint32_t)(5-sonar_skip)*65535)-sonar_data_start; // We got 0 on Echo pin, calculate impulse length in counter ticks
 			sonar_meas=1; // Set "Measurement finished" flag
 		}
-	} 
+	}
 }
 void AP_AnalogSource_PIRATES::init(void)
 {
@@ -57,10 +57,11 @@ void AP_AnalogSource_PIRATES::init(void)
 	DDRB &=B11101111;
 	
 	TCCR5A = 0; //standard mode with overflow at A and OC B and C interrupts
-	TCCR5B |= (1<<CS11); //Prescaler set to 8, resolution of 0.5us
-	OCR5A = 65510; // Set overflow value
+	TCCR5B |= (1 << CS51); //Prescaler set to 8, resolution of 0.5us
+	OCR5A = 65510; // Set overflow value, It give us 12.5us to generate Trigger signal for sonar 
 	TIMSK5 |= (1 << OCIE5A) | (1 << TOIE5); // ints: overflow, compareA
-	PCMSK0 = (1 << PCINT4); // Enable interrup o sonar ECHO pin: B4 - D10
+	PCMSK0 |= (1 << PCINT4); // Enable interrup o sonar ECHO pin: B4 - D10
+	PCICR |= (1 << PCIE0); // PCINT0 Interrupt enable for PORTB
 }
 
 float AP_AnalogSource_PIRATES::read(void)
