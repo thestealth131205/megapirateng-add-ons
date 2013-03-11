@@ -147,11 +147,13 @@ static void read_radio()
 #endif
     }else{
         // turn on throttle failsafe if no update from ppm encoder for 2 seconds
+        /* MPNG: Do nothing, because we have our version of Signal loss failsafe in APM_RC library
         uint32_t last_rc_update = APM_RC.get_last_update();
         if ((millis() - last_rc_update >= RADIO_FS_TIMEOUT_MS) && g.failsafe_throttle && motors.armed() && !ap.failsafe) {
             Log_Write_Error(ERROR_SUBSYSTEM_RADIO, ERROR_CODE_RADIO_LATE_FRAME);
             set_failsafe(true);
         }
+        */
     }
 }
 
