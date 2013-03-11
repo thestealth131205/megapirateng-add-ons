@@ -185,7 +185,6 @@ bool AP_InertialSensor_Pirates::read(uint32_t tnow)
 	
 	_ins_timer = tnow;
 		
-	static uint8_t i;
 	uint8_t rawADC_ITG3200[8];
 	uint8_t rawADC_BMA180[6];
 
@@ -218,8 +217,6 @@ bool AP_InertialSensor_Pirates::read(uint32_t tnow)
 
 void AP_InertialSensor_Pirates::hardware_init(Sample_rate sample_rate)
 {
-	int i;
-	
 	I2c.begin();
 	I2c.setSpeed(true);// 400Hz
 	I2c.pullup(true);

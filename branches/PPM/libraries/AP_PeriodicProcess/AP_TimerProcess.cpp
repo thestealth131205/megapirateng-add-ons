@@ -111,7 +111,6 @@ void AP_TimerProcess::run(void)
 	// timer calls
 	TCNT2 = _period;
 	sei();
-	static uint8_t curproc = 0;
 
 	uint32_t tnow = micros();
 
@@ -126,6 +125,10 @@ void AP_TimerProcess::run(void)
 		// need be.  We assume the failsafe code can't
 		// block. If it does then we will recurse and die when
 		// we run out of stack
+		
+		// MPNG Notice
+		// Sometime (1 time per 6sec) we will be here, but it's normal
+		// It happens when all drivers reads his sensors in same time 
 		if (_failsafe != NULL) {
 			_failsafe(tnow);
 		}
@@ -133,28 +136,14 @@ void AP_TimerProcess::run(void)
 	}
 	_in_timer_call = true;
 
-	if (!_suspended && _pidx > 0) {
-		if (_proc[curproc](tnow)) { // call current driver
-			curproc++; // select next driver
-			if (curproc == _pidx)
-					curproc = 0;
-		} else {
-			uint8_t calledproc = curproc;
-			curproc++; // select next driver
-			if (curproc == _pidx)
-					curproc = 0;
-			bool ret = false;
-			while (curproc != calledproc && !ret) {
-				tnow = micros();
-				ret = _proc[curproc](tnow);
-				curproc++; // select next driver
-				if (curproc == _pidx)
-						curproc = 0;
-			}
-		}
-	}
-	if (!_suspended) {
-          // run any queued processes
+	if (!_suspended) {// && _pidx > 0) {
+        // now call the timer based drivers
+        for (int i = 0; i < _pidx; i++) {
+            if (_proc[i] != NULL) {
+                _proc[i](tnow);
+            }
+        }
+        // run any queued processes
         uint8_t oldSREG = SREG;
           cli();
           ap_procedure qp = _queued_proc;
