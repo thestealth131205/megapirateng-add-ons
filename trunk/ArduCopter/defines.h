@@ -481,9 +481,9 @@ enum gcs_severity {
 #define TX_mwi	5							//MultiWii layout													ROLL,THROTTLE,PITCH,YAW,AUX1,AUX2,CAMPITCH,CAMROLL
 #define TX_JR   6
 
-#define SERIAL_PPM_DISABLED 0
-#define SERIAL_PPM_ENABLED  1
-#define SERIAL_PPM_ENABLED_PL1 2
+//#define SERIAL_PPM_DISABLED 0
+//#define SERIAL_PPM_ENABLED  1
+//#define SERIAL_PPM_ENABLED_PL1 2
 
 // Error message sub systems and error codes
 #define ERROR_SUBSYSTEM_MAIN                1

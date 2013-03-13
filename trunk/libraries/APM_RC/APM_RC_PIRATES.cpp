@@ -43,6 +43,9 @@
 #endif
 
 
+// Used to count missed packets (to detect signal loss)
+#define WATCHDOG_THRESHOLD 3
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
 # error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
 #else
@@ -56,6 +59,7 @@ volatile uint32_t _last_update = 0;
 
 // failsafe counter
 volatile uint8_t failsafeCnt = 0;
+volatile uint8_t watchdog_counter = 0;
 volatile bool failsafe_enabled = false;
 volatile bool valid_frame = false;
 
@@ -117,8 +121,9 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 				}
 				// If we read at least 4 channel - reset failsafe counter
 				failsafeCnt = 0;
+				watchdog_counter = 0;
 				valid_frame = true;
-				_last_update = millis();
+//				_last_update = millis();
 			}
 			good_sync_received = true;
 		}
@@ -176,8 +181,9 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 					}
 					// If we read at least 4 channel - reset failsafe counter
 					failsafeCnt = 0;
+					watchdog_counter = 0;
 					valid_frame = true;
-					_last_update = millis();
+//					_last_update = millis();
 				}
 				good_sync_received = true;
 			}
@@ -200,7 +206,7 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
-	if (mask != 0)
+	if (mask != 0) 
 		valid_frame = true;
 		
 	// generic split PPM  
@@ -249,7 +255,8 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	// failsafe counter must be zero if all ok  
 	if (mask & 1<<pinRcChannel[2]) {    // If pulse present on THROTTLE pin, clear FailSafe counter  - added by MIS fow multiwii (copy by SovGVD to megapirateNG)
 		failsafeCnt = 0;
-		_last_update = millis();
+		watchdog_counter = 0;
+//		_last_update = millis();
 	}
 }
 
@@ -491,14 +498,18 @@ uint8_t APM_RC_PIRATES::GetState(void)
 {
 	bool _tmp = valid_frame;
 	
-	valid_frame = false;
-	
-	// If we not received good frame after 2 reads, reset status and start from scratch
-	if (!_tmp) {
-		good_sync_received = false;
+	// Check we still receiveing good packets
+	if (watchdog_counter > WATCHDOG_THRESHOLD) {
+		if (watchdog_counter != 255) {
+			good_sync_received = false; // Reset GOOD_SYNC_RECEIVED flag
+			valid_frame = false;
+			watchdog_counter = 255;
+		}
+	}	else {
+		watchdog_counter++;
 	}
 
-	#if FS_ENABLED == ENABLED	
+	#if FS_ENABLED == ENABLED
 		if(_tmp && !failsafe_enabled)
 		{
 			// Ok, we got first good packet, now we can enable failsafe and start to monitor outputs
@@ -509,12 +520,13 @@ uint8_t APM_RC_PIRATES::GetState(void)
 			if(failsafeCnt < FS_THRESHOLD) 
 				failsafeCnt++;
 			else 
-				_tmp = true; // Force Good State in order send failsafe values to APM
+				_tmp = true; // Override result State in order send failsafe values to APM
 		}
 	#endif
 
 	return(_tmp);
 }
+
 
 // InstantPWM implementation
 void APM_RC_PIRATES::Force_Out(void)
