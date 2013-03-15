@@ -39,13 +39,17 @@
 # modified by paku for Cygwin as of January 2013
 # This file is not Linux/Unix make compatible, tested on Windows 7 Pro 64bit
 # No warranties of any kind, original disclimer applies,see above :)
-######################################################################################
+################################################################################
+# 2013.03.15 paku
+# v.0.4
+# SVN revision number added into the firmware build name
+# - read SubWCRev manual for more information on string formatting
+# - Firmware name format/config is located in revision_conf.h file
+# - Tools used here come from TortoiseSVN - install this first
+# - your building source has to be the SVN repository
+# - will not work under Arduino. For Arduino edit revision.h manually.  
 
-
-#
-# Build an Arduino sketch.
-#
-
+CYGWIN =nodosfilewarning
 ################################################################################
 # Paths
 #
@@ -53,21 +57,16 @@
 #
 # Save the system type for later use.
 #
+
+
 SYSTYPE			:=	$(shell uname)
 
-##$(warning ---- Build for $(SYSTYPE) ----)
-
-# force LANG to C so awk works sanely on MacOS
-export LANG=C
+#$(warning ---- Build for $(SYSTYPE) ----)
 
 #
 # Locate the sketch sources based on the initial Makefile's path
 #
 SRCROOT			:=	$(realpath $(dir $(firstword $(MAKEFILE_LIST))))
-
-### Correct the directory backslashes on cygwin
-##ARDUINO		:=	$(subst \,/,$(ARDUINO))
-
 
 #
 # We need to know the location of the sketchbook.  If it hasn't been overridden,
@@ -201,6 +200,15 @@ ifeq ($(shell which $(AWK)),)
 $(error ERROR: cannot find $(AWK) - you may need to install GNU awk)
 endif
 
+
+##########################################################################################
+# SVN revision number
+# to be enabled in config.mk
+ifeq ($(SVN_REV),yes)
+SVN_REV := $(shell subwcrev $(shell cygpath -m $(SRCROOT)) $(shell cygpath -m $(SRCROOT)\\revision_conf.h) $(shell cygpath -m $(SRCROOT)\\revision.h) -f)
+else
+endif
+
 ##########################################################################################
 # Tool options
 # define EXTRAFLAGS outside the make file if you need
@@ -216,7 +224,7 @@ ASOPTS			=	-assembler-with-cpp
 LISTOPTS		=	-adhlns=$(subst .o,.lst,$(shell cygpath -m $@))
 
 CXXFLAGS		=	-g -mmcu=$(MCU) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS) $(DEPFLAGS) $(CXXOPTS)
-CFLAGS			=	-g -mmcu=$(MCU) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS) $(DEPFLAGS) $(COPTS)
+CFLAGS			=	-g -mmcu=$(MCU) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS) $(DEPFLAGS) $(COPTS) 
 ASFLAGS			=	-g -mmcu=$(MCU) $(DEFINES)     $(LISTOPTS) $(DEPFLAGS) $(ASOPTS)
 LDFLAGS			=	-g -mmcu=$(MCU) $(OPTFLAGS) -Wl,--relax,--gc-sections -Wl,-Map -Wl,$(shell cygpath -m $(SKETCHMAP))
 
@@ -224,10 +232,7 @@ ifeq ($(BOARD),mega)
   LDFLAGS		=	-g -mmcu=$(MCU) $(OPTFLAGS) -Wl,--gc-sections -Wl,-Map -Wl,$(shell cygpath -m $(SKETCHMAP))
 endif
 
-
-
 LIBS			=	-lm
-
 SRCSUFFIXES		=	*.cpp *.c *.S
 
 ifeq ($(VERBOSE),)
@@ -391,12 +396,15 @@ endif
 ################################################################################
 # Targets
 #
+#@echo "CYGWIN      : $(CYGWIN)"
 
-all:	$(SKETCHELF) $(SKETCHEEP) $(SKETCHHEX)
-	@echo "### Build Done ###"
+all:	$(SKETCHELF) $(SKETCHEEP) $(SKETCHHEX)	
+	@echo "> SVN          : $(SVN_REV)"
+	@echo "> Build Sys.   : $(SYSTYPE)"
+	@echo "> Build        : Done ..."
 upload: $(SKETCHHEX)
 	$(AVRDUDE) -c $(UPLOAD_PROTOCOL) -p $(MCU) -P $(PORT) -b$(UPLOAD_SPEED) -U flash:w:$(shell cygpath -m $(SKETCHHEX)):i
-	@echo "### Upload Done ###"
+	@echo "> Upload       : Done ..."
 
 configure:
 	$(warning WARNING - A $(SKETCHBOOK)/config.mk file has been written)
@@ -410,6 +418,8 @@ configure:
 	@echo PORT=com9 >> $(SKETCHBOOK)/config.mk
 	@echo "# Uncomment, if you need a lot of informations on the build process." >> $(SKETCHBOOK)/config.mk
 	@echo "#VERBOSE=yes" >> $(SKETCHBOOK)/config.mk
+	@echo "# Uncomment, if you use TortoiseSVN (SubWCRev tool required) and want to include revision number in the build name" >> $(SKETCHBOOK)/config.mk	
+	@echo "#SVN_REV=yes" >> $(SKETCHBOOK)/config.mk
 
 
 debug:
