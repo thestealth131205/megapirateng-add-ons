@@ -282,7 +282,7 @@ void send_Fuel_level(void)
 			Datas_Fuel_level += 25;    			//3rd for the fix.
 			if (ap.home_is_set) // ver.2.9.x
 			//if (home_is_set)  // ver.2.8.x
-				Datas_Fuel_level += 25;    		//4rd for home set.
+				Datas_Fuel_level += 25;    		//4th for home set.
 		}
 	}
 
