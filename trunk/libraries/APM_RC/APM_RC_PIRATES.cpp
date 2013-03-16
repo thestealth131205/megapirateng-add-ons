@@ -28,7 +28,7 @@
 #define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
-#define FILTER FILTER_AVERAGE
+#define FILTER FILTER_DISABLE
 /*
 	FILTER_DISABLED
 	FILTER_AVERAGE
@@ -46,21 +46,22 @@
 // Used to count missed packets (to detect signal loss)
 #define WATCHDOG_THRESHOLD 3
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-# error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
-#else
+// PAKU commented out for better Eclipse view :)
+//#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+//# error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
+//#else
 
 // Variable definition for Input Capture interrupt
-volatile uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2) 
-volatile bool bv_mode;
+uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
+bool bv_mode;
 uint8_t *pinRcChannel;
 
 volatile uint32_t _last_update = 0;
 
 // failsafe counter
 volatile uint8_t failsafeCnt = 0;
-volatile uint8_t watchdog_counter = 0;
-volatile bool failsafe_enabled = false;
+volatile uint8_t watchdog_counter;
+bool failsafe_enabled = false;
 volatile bool valid_frame = false;
 
 // ******************
@@ -69,52 +70,54 @@ volatile bool valid_frame = false;
 volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
 volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
 volatile bool good_sync_received = false;
-volatile uint8_t pps_num=0;
+
 typedef void (*ISRFuncPtr)(void);
-static volatile ISRFuncPtr FireISRRoutine = 0; 
+ISRFuncPtr FireISRRoutine = 0;
 
 ISR(PCINT2_vect) {
 	if (FireISRRoutine)
 		FireISRRoutine();
 }
 
-volatile uint16_t ICR5_old;
+
 
 // Serial PPM support on PL1(ICP5) pin
 void APM_RC_PIRATES::_timer5_capt_cb(void)
 {
 	uint16_t Pulse;
-	uint16_t dTime;
+	uint16_t period_time;
+	static uint16_t ICR5_old;
+	static uint8_t curr_ch_number;
 	
 	Pulse = ICR5;
 	// Calculating pulse width
 	if (Pulse<ICR5_old) { 
-		dTime = ((0xFFFF - ICR5_old)+Pulse) >> 1; 
+		period_time = ((0xFFFF - ICR5_old)+Pulse) >> 1;
 	}
 	else {
-		dTime = (Pulse-ICR5_old) >> 1;
+		period_time = (Pulse-ICR5_old) >> 1;
 	}
 	ICR5_old = Pulse;
 	
-	if (dTime < MAX_PULSEWIDTH  && dTime > MIN_PULSEWIDTH) {
+	if (period_time < MAX_PULSEWIDTH  && period_time > MIN_PULSEWIDTH) {
 		// Ignore more than NUM_CHANNELS channels
-		if (pps_num < NUM_CHANNELS) {
+		if (curr_ch_number < NUM_CHANNELS) {
 			#if FILTER == FILTER_DISABLED
-				rcPinValueRAW[pps_num] = dTime;
+				rcPinValueRAW[curr_ch_number] = period_time;
 			#elif FILTER == FILTER_AVERAGE 
-				//dTime += rcPinValueRAW[pps_num];
-				//rcPinValueRAW[pps_num] = dTime>>1;
-				rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
+				//period_time += rcPinValueRAW[curr_ch_number];
+				//rcPinValueRAW[curr_ch_number] = period_time>>1;
+				rcPinValueRAW[curr_ch_number]=((AVARAGE_FACTOR*rcPinValueRAW[curr_ch_number])+period_time)/(AVARAGE_FACTOR+1);
 			#elif FILTER == FILTER_JITTER 
-				if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
-					rcPinValueRAW[pps_num] = dTime;
+				if (abs(rcPinValueRAW[curr_ch_number]-period_time) > JITTER_THRESHOLD)
+					rcPinValueRAW[curr_ch_number] = period_time;
 			#endif
-			pps_num++;
+			curr_ch_number++;
 		}
 	// Sync signal ?
-	} else if (dTime > MAX_PULSEWIDTH) {
+	} else if (period_time > MAX_PULSEWIDTH) {
 		// Skip all data before first good sync received
-		if (pps_num > 3) {
+		if (curr_ch_number > 3) {
 			if (good_sync_received) {
 				for (uint8_t i=0; i<NUM_CHANNELS; i++) {
 					rcPinValue[i] = rcPinValueRAW[i];
@@ -127,81 +130,112 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 			}
 			good_sync_received = true;
 		}
-		pps_num = 0; // Reset packet to Channel 0
+		curr_ch_number = 0; // Reset packet to Channel 0
 	}
 }
 
-volatile uint16_t pps_etime=0;
-volatile uint8_t PCintLast;
+
+
 
 void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 { 
 //	digitalWrite(46,1);
-	uint16_t cTime,dTime;
+	uint16_t curr_time,period_time;
 	uint8_t mask;
 	uint8_t pin;
+	static uint16_t last_time;
+	static uint8_t PCintLast;
+	static uint8_t curr_ch_number;
+	static bool GotFirstSynch;
 
-	cTime = TCNT5; // 0.5us resolution
+	curr_time = TCNT5; // 0.5us resolution
 	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
 	// Rising edge detection
 	if (pin & 1) { 
-		// Calculate pulse width
-		if (cTime < pps_etime)
-			dTime = ((0xFFFF-pps_etime)+cTime) >> 1;
-		else
-			dTime = (cTime-pps_etime) >> 1; 
-		pps_etime = cTime; // Save edge time
+
+		// PAKU it should be guaranteed to wrap around - do not need to check. (unsigned values)
+		period_time = (curr_time-last_time) >> 1;
+		last_time = curr_time; // Save edge time
 			
-		// Valid pulse channel?
-		if (dTime < MAX_PULSEWIDTH && dTime > MIN_PULSEWIDTH) {
-			// Ignore more than NUM_CHANNELS channels
-			if (pps_num < NUM_CHANNELS) {
+		// PAKU Process channel pulse
+		// Good widths ??
+		// We had a frame beginning ??
+		if ((period_time < MAX_PULSEWIDTH) && (period_time > MIN_PULSEWIDTH) && (GotFirstSynch)) {
+			if (curr_ch_number < NUM_CHANNELS) {
 				#if FILTER == FILTER_DISABLED
-					rcPinValueRAW[pps_num] = dTime;
+					rcPinValueRAW[curr_ch_number] = period_time;
 				#elif FILTER == FILTER_AVERAGE 
-					//dTime += rcPinValueRAW[pps_num];
-					//rcPinValueRAW[pps_num] = dTime>>1;
-					rcPinValueRAW[pps_num]=((AVARAGE_FACTOR*rcPinValueRAW[pps_num])+dTime)/(AVARAGE_FACTOR+1);
+					//period_time += rcPinValueRAW[curr_ch_number];
+					//rcPinValueRAW[curr_ch_number] = period_time>>1;
+					rcPinValueRAW[curr_ch_number]=((AVARAGE_FACTOR*rcPinValueRAW[curr_ch_number])+period_time)/(AVARAGE_FACTOR+1);
 				#elif FILTER == FILTER_JITTER 
-					if (abs(rcPinValueRAW[pps_num]-dTime) > JITTER_THRESHOLD)
-						rcPinValueRAW[pps_num] = dTime;
+					if (abs(rcPinValueRAW[curr_ch_number]-period_time) > JITTER_THRESHOLD)
+						rcPinValueRAW[curr_ch_number] = period_time;
 				#endif
-				pps_num++;
+
 			}
-		// Sync signal ?
-		} else if (dTime > MAX_PULSEWIDTH) {
-			// Skip all data before first good sync received
-			if (pps_num > 3) {
-				if (good_sync_received) {
-					for (uint8_t i=0; i<NUM_CHANNELS; i++) {
-						rcPinValue[i] = rcPinValueRAW[i];
-					}
-					// If we read at least 4 channel - reset failsafe counter
-					failsafeCnt = 0;
-					watchdog_counter = 0;
-					valid_frame = true;
-//					_last_update = millis();
-				}
-				good_sync_received = true;
+			// PAKU count always even if we will get more then NUM_CHANNELS >> fault detection.
+			curr_ch_number++;
+
+			if (curr_ch_number>MAX_CH_NUM) failsafeCnt++; // that's bad
+
+
+		}
+
+		// PAKU Process VALID SYNCH pulse
+		// it's SYNCH
+		// we should have at least 1 SYNCHs before coming here
+		// we are not over counted on channels
+		// we have got at least 4ch
+		else if ((period_time > MIN_PPM_SYNCHWIDTH) && (GotFirstSynch) && (curr_ch_number<MAX_CH_NUM) && (curr_ch_number>3))
+		{
+			for (uint8_t i=0; i<NUM_CHANNELS; i++) 		//store channels
+			{
+				rcPinValue[i] = rcPinValueRAW[i];
 			}
-			pps_num = 0; // Reset packet to Channel 0
+			failsafeCnt = 0;							// we are ok :)
+			valid_frame = true;
+			//_last_update = millis();
+		}
+
+		// PAKU Process First SYNCH
+		// it's SYNCH
+		// That's our first SYNCH, so make stuff ready....
+		else if ((period_time > MIN_PPM_SYNCHWIDTH) && (!GotFirstSynch))
+		{
+			GotFirstSynch = true;
+			curr_ch_number=0;
+			failsafeCnt = 0;
+			failsafe_enabled = true;
+			valid_frame = false;
+		}
+
+		// PAKU Process FAILURE - start from beginning ....
+		// that's bad - we do not want to be here at any time ....
+		else {
+			GotFirstSynch = false;
+			failsafeCnt++;
+			curr_ch_number=0;
+			valid_frame = false;
 		}
 	}
 //	digitalWrite(46,0);
 }
 
-volatile uint16_t edgeTime[8];
+
 
 void APM_RC_PIRATES::_pwm_mode_isr(void)
 { //this ISR is common to every receiver channel, it is call everytime a change state occurs on a digital pin [D2-D7]
 	uint8_t mask;
 	uint8_t pin;
-	uint16_t cTime,dTime;
+	uint16_t curr_time,period_time;
+	static uint8_t PCintLast;
+	static uint16_t edgeTime[NUM_CHANNELS];
 
-	cTime = TCNT5;         // from sonar
+	curr_time = TCNT5;         // from sonar
 	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
@@ -214,43 +248,43 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	// chan = pin sequence of the port. chan begins at D2 and ends at D7
 	if (mask & 1<<0) {
 		if (!(pin & 1<<0)) {
-			dTime = (cTime-edgeTime[0])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[0] = dTime;
-		} else edgeTime[0] = cTime;
+			period_time = (curr_time-edgeTime[0])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[0] = period_time;
+		} else edgeTime[0] = curr_time;
 	}
 	if (mask & 1<<1) {
 		if (!(pin & 1<<1)) {
-			dTime = (cTime-edgeTime[1])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[1] = dTime;
-		} else edgeTime[1] = cTime;
+			period_time = (curr_time-edgeTime[1])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[1] = period_time;
+		} else edgeTime[1] = curr_time;
 	}
 	if (mask & 1<<2) { 
 		if (!(pin & 1<<2)) {
-			dTime = (cTime-edgeTime[2])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[2] = dTime;
-		} else edgeTime[2] = cTime;
+			period_time = (curr_time-edgeTime[2])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[2] = period_time;
+		} else edgeTime[2] = curr_time;
 	}
 	if (mask & 1<<3) {
 		if (!(pin & 1<<3)) {
-			dTime = (cTime-edgeTime[3])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[3] = dTime;
-		} else edgeTime[3] = cTime;
+			period_time = (curr_time-edgeTime[3])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[3] = period_time;
+		} else edgeTime[3] = curr_time;
 	}
 	if (mask & 1<<4) {
 		if (!(pin & 1<<4)) {
-			dTime = (cTime-edgeTime[4])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[4] = dTime;
-		} else edgeTime[4] = cTime;
+			period_time = (curr_time-edgeTime[4])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[4] = period_time;
+		} else edgeTime[4] = curr_time;
 	}
 	if (mask & 1<<5) {
 		if (!(pin & 1<<5)) {
-			dTime = (cTime-edgeTime[5])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[5] = dTime;
-		} else edgeTime[5] = cTime;
+			period_time = (curr_time-edgeTime[5])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[5] = period_time;
+		} else edgeTime[5] = curr_time;
 	}
 	if (mask & 1<<6) {
 		if (!(pin & 1<<6)) {
-			dTime = (cTime-edgeTime[6])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[6] = dTime;
-		} else edgeTime[6] = cTime;
+			period_time = (curr_time-edgeTime[6])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[6] = period_time;
+		} else edgeTime[6] = curr_time;
 	}
 	if (mask & 1<<7) {
 		if (!(pin & 1<<7)) {
-			dTime = (cTime-edgeTime[7])>>1; if (MIN_PULSEWIDTH<dTime && dTime<MAX_PULSEWIDTH) rcPinValue[7] = dTime;
-		} else edgeTime[7] = cTime;
+			period_time = (curr_time-edgeTime[7])>>1; if (MIN_PULSEWIDTH<period_time && period_time<MAX_PULSEWIDTH) rcPinValue[7] = period_time;
+		} else edgeTime[7] = curr_time;
 	}
 	// failsafe counter must be zero if all ok  
 	if (mask & 1<<pinRcChannel[2]) {    // If pulse present on THROTTLE pin, clear FailSafe counter  - added by MIS fow multiwii (copy by SovGVD to megapirateNG)
@@ -286,6 +320,8 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	failsafe_enabled = false;
 	failsafeCnt = 0;
 	valid_frame = false;
+	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
+	watchdog_counter = 0;
 	
 	if (bv_mode) {
 		// BlackVortex Mapping
@@ -497,7 +533,8 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 uint8_t APM_RC_PIRATES::GetState(void)
 {
 	bool _tmp = valid_frame;
-	
+
+	/*
 	// Check we still receiveing good packets
 	if (watchdog_counter > WATCHDOG_THRESHOLD) {
 		if (watchdog_counter != 255) {
@@ -508,6 +545,8 @@ uint8_t APM_RC_PIRATES::GetState(void)
 	}	else {
 		watchdog_counter++;
 	}
+
+	*/
 
 	#if FS_ENABLED == ENABLED
 		if(_tmp && !failsafe_enabled)
@@ -611,4 +650,5 @@ uint32_t APM_RC_PIRATES::get_last_update() {
     return _last_update;
 }; 
 
-#endif // defined(ATMega1280)
+/// PAKU endif
+///#endif // defined(ATMega1280)

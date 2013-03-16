@@ -87,7 +87,7 @@
 #define SAVE_TRIM_LEDS 1
 
 
-///paku - define LEDs on startup - could be changed in Mission Planner
+/// paku - define LEDs on startup - could be changed in Mission Planner
 #define LEDS_MOTORS 1
 #define LEDS_GPS 2
 #define LEDS_AUX 4
