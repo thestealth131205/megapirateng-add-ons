@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED ENABLED
+#define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
 #define FILTER FILTER_DISABLE
@@ -85,54 +85,82 @@ ISR(PCINT2_vect) {
 // Serial PPM support on PL1(ICP5) pin
 void APM_RC_PIRATES::_timer5_capt_cb(void)
 {
-	uint16_t Pulse;
-	uint16_t period_time;
-	static uint16_t ICR5_old;
+	//uint16_t Pulse;
+	uint16_t period_time,curr_time;
+	static uint16_t last_time;
 	static uint8_t curr_ch_number;
+	static bool GotFirstSynch;
 	
-	Pulse = ICR5;
-	// Calculating pulse width
-	if (Pulse<ICR5_old) { 
-		period_time = ((0xFFFF - ICR5_old)+Pulse) >> 1;
-	}
-	else {
-		period_time = (Pulse-ICR5_old) >> 1;
-	}
-	ICR5_old = Pulse;
-	
-	if (period_time < MAX_PULSEWIDTH  && period_time > MIN_PULSEWIDTH) {
-		// Ignore more than NUM_CHANNELS channels
+	curr_time = ICR5; ///PAKU that's the only diff for V2 and V1 versions :)
+
+
+	// PAKU it should be guaranteed to wrap around - do not need to check. (unsigned values)
+	period_time = (curr_time-last_time) >> 1;
+	last_time = curr_time; // Save edge time
+
+	// PAKU Process channel pulse
+	// Good widths ??
+	// We had a frame beginning ??
+	if ((period_time < MAX_PULSEWIDTH) && (period_time > MIN_PULSEWIDTH) && (GotFirstSynch)) {
 		if (curr_ch_number < NUM_CHANNELS) {
 			#if FILTER == FILTER_DISABLED
 				rcPinValueRAW[curr_ch_number] = period_time;
-			#elif FILTER == FILTER_AVERAGE 
+			#elif FILTER == FILTER_AVERAGE
 				//period_time += rcPinValueRAW[curr_ch_number];
 				//rcPinValueRAW[curr_ch_number] = period_time>>1;
 				rcPinValueRAW[curr_ch_number]=((AVARAGE_FACTOR*rcPinValueRAW[curr_ch_number])+period_time)/(AVARAGE_FACTOR+1);
-			#elif FILTER == FILTER_JITTER 
+			#elif FILTER == FILTER_JITTER
 				if (abs(rcPinValueRAW[curr_ch_number]-period_time) > JITTER_THRESHOLD)
 					rcPinValueRAW[curr_ch_number] = period_time;
 			#endif
-			curr_ch_number++;
+
 		}
-	// Sync signal ?
-	} else if (period_time > MAX_PULSEWIDTH) {
-		// Skip all data before first good sync received
-		if (curr_ch_number > 3) {
-			if (good_sync_received) {
-				for (uint8_t i=0; i<NUM_CHANNELS; i++) {
-					rcPinValue[i] = rcPinValueRAW[i];
-				}
-				// If we read at least 4 channel - reset failsafe counter
-				failsafeCnt = 0;
-				///watchdog_counter = 0;
-				valid_frame = true;
-//				_last_update = millis();
-			}
-			good_sync_received = true;
-		}
-		curr_ch_number = 0; // Reset packet to Channel 0
+		// PAKU count always even if we will get more then NUM_CHANNELS >> fault detection.
+		curr_ch_number++;
+
+		if (curr_ch_number>MAX_CH_NUM) failsafeCnt++; // that's bad
+
+
 	}
+
+	// PAKU Process VALID SYNCH pulse
+	// it's SYNCH
+	// we should have at least 1 SYNCHs before coming here
+	// we are not over counted on channels
+	// we have got at least 4ch
+	else if ((period_time > MIN_PPM_SYNCHWIDTH) && (GotFirstSynch) && (curr_ch_number<MAX_CH_NUM) && (curr_ch_number>3))
+	{
+		for (uint8_t i=0; i<NUM_CHANNELS; i++) 		//store channels
+		{
+			rcPinValue[i] = rcPinValueRAW[i];
+		}
+		failsafeCnt = 0;							// we are ok :)
+		valid_frame = true;
+		//_last_update = millis();
+	}
+
+	// PAKU Process First SYNCH
+	// it's SYNCH
+	// That's our first SYNCH, so make stuff ready....
+	else if ((period_time > MIN_PPM_SYNCHWIDTH) && (!GotFirstSynch))
+	{
+		GotFirstSynch = true;
+		curr_ch_number=0;
+		failsafeCnt = 0;
+		failsafe_enabled = true;
+		valid_frame = false;
+	}
+
+	// PAKU Process FAILURE - start from beginning ....
+	// that's bad - we do not want to be here at any time ....
+	else {
+		GotFirstSynch = false;
+		failsafeCnt++;
+		curr_ch_number=0;
+		valid_frame = false;
+	}
+
+
 }
 
 
@@ -290,7 +318,6 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	// failsafe counter must be zero if all ok  
 	if (mask & 1<<pinRcChannel[2]) {    // If pulse present on THROTTLE pin, clear FailSafe counter  - added by MIS fow multiwii (copy by SovGVD to megapirateNG)
 		failsafeCnt = 0;
-//		watchdog_counter = 0;
 //		_last_update = millis();
 	}
 }

@@ -1117,8 +1117,15 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 								g.rc_7.radio_in,
 								g.rc_8.radio_in);
 			} else {
-				cliSerial->printf_P(PSTR("***** No signal\n"));
+				/// PAKU It's not a NO SIGNAL but no NEW FRAME - removed wrong description, now if no NEW frame just sending '-'
+				cliSerial->printf_P(PSTR("-\n"));
 			}
+			
+			/// PAKU Show if failsafe set
+			if (ap.failsafe){
+				cliSerial->printf_P(PSTR("- FAILSAFE \n"));				
+			}
+			
 			ap_system.new_radio_frame = false;
 			
 			if(cliSerial->available() > 0){
