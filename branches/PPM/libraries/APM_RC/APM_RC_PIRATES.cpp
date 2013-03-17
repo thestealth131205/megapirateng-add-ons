@@ -28,7 +28,7 @@
 #define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
-#define FILTER FILTER_DISABLE
+#define FILTER FILTER_DISABLED
 /*
 	FILTER_DISABLED
 	FILTER_AVERAGE
@@ -93,77 +93,7 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 	
 	curr_time = ICR5; ///PAKU that's the only diff for V2 and V1 versions :)
 
-
-	// PAKU it should be guaranteed to wrap around - do not need to check. (unsigned values)
-	period_time = (curr_time-last_time) >> 1;
-	last_time = curr_time; // Save edge time
-
-	// PAKU Process channel pulse
-	// Good widths ??
-	// We had a frame beginning ??
-	if ((period_time < MAX_PULSEWIDTH) && (period_time > MIN_PULSEWIDTH) && (GotFirstSynch)) {
-		if (curr_ch_number < NUM_CHANNELS) {
-			#if FILTER == FILTER_DISABLED
-				rcPinValueRAW[curr_ch_number] = period_time;
-			#elif FILTER == FILTER_AVERAGE
-				//period_time += rcPinValueRAW[curr_ch_number];
-				//rcPinValueRAW[curr_ch_number] = period_time>>1;
-				rcPinValueRAW[curr_ch_number]=((AVARAGE_FACTOR*rcPinValueRAW[curr_ch_number])+period_time)/(AVARAGE_FACTOR+1);
-			#elif FILTER == FILTER_JITTER
-				if (abs(rcPinValueRAW[curr_ch_number]-period_time) > JITTER_THRESHOLD)
-					rcPinValueRAW[curr_ch_number] = period_time;
-			#endif
-
-		}
-		// PAKU count always even if we will get more then NUM_CHANNELS >> fault detection.
-		curr_ch_number++;
-
-		if (curr_ch_number>MAX_CH_NUM) failsafeCnt++; // that's bad
-
-
-	}
-
-	// PAKU Process VALID SYNCH pulse
-	// it's SYNCH
-	// we should have at least 1 SYNCHs before coming here
-	// we are not over counted on channels
-	// we have got at least 4ch
-	else if ((period_time > MIN_PPM_SYNCHWIDTH) && (GotFirstSynch) && (curr_ch_number<MAX_CH_NUM) && (curr_ch_number>3))
-	{
-		for (uint8_t i=0; i<NUM_CHANNELS; i++) 		//store channels
-		{
-			rcPinValue[i] = rcPinValueRAW[i];
-		}
-		failsafeCnt = 0;							// we are ok :)
-		valid_frame = true;
-		//_last_update = millis();
-	}
-
-	// PAKU Process First SYNCH
-	// it's SYNCH
-	// That's our first SYNCH, so make stuff ready....
-	else if ((period_time > MIN_PPM_SYNCHWIDTH) && (!GotFirstSynch))
-	{
-		GotFirstSynch = true;
-		curr_ch_number=0;
-		failsafeCnt = 0;
-		failsafe_enabled = true;
-		valid_frame = false;
-	}
-
-	// PAKU Process FAILURE - start from beginning ....
-	// that's bad - we do not want to be here at any time ....
-	else {
-		GotFirstSynch = false;
-		failsafeCnt++;
-		curr_ch_number=0;
-		valid_frame = false;
-	}
-
-
 }
-
-
 
 
 void APM_RC_PIRATES::_ppmsum_mode_isr(void)
@@ -191,7 +121,6 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			
 		// PAKU Process channel pulse
 		// Good widths ??
-		// We had a frame beginning ??
 		if ((period_time < MAX_PULSEWIDTH) && (period_time > MIN_PULSEWIDTH) && (GotFirstSynch)) {
 			if (curr_ch_number < NUM_CHANNELS) {
 				#if FILTER == FILTER_DISABLED
@@ -209,26 +138,15 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			// PAKU count always even if we will get more then NUM_CHANNELS >> fault detection.
 			curr_ch_number++;
 
-			if (curr_ch_number>MAX_CH_NUM) failsafeCnt++; // that's bad
-
-
-		}
-
-		// PAKU Process VALID SYNCH pulse
-		// it's SYNCH
-		// we should have at least 1 SYNCHs before coming here
-		// we are not over counted on channels
-		// we have got at least 4ch
-		else if ((period_time > MIN_PPM_SYNCHWIDTH) && (GotFirstSynch) && (curr_ch_number<MAX_CH_NUM) && (curr_ch_number>3))
-		{
-			for (uint8_t i=0; i<NUM_CHANNELS; i++) 		//store channels
-			{
-				rcPinValue[i] = rcPinValueRAW[i];
+			if (curr_ch_number>MAX_CH_NUM) {
+				failsafeCnt++; 								// that's bad
+				valid_frame = false;						//reset validity
+				GotFirstSynch = false;						//reset decoder
 			}
-			failsafeCnt = 0;							// we are ok :)
-			valid_frame = true;
-			//_last_update = millis();
+			if (curr_ch_number==1) valid_frame = false;		//reset validity on 1st ch
+
 		}
+
 
 		// PAKU Process First SYNCH
 		// it's SYNCH
@@ -240,6 +158,27 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			failsafeCnt = 0;
 			failsafe_enabled = true;
 			valid_frame = false;
+		}
+
+		// PAKU Process any other SYNCH
+		// it's SYNCH
+		else if ((period_time > MIN_PPM_SYNCHWIDTH))
+		{
+
+			// if we have got at least 4 chs
+			if (curr_ch_number>3){
+				for (uint8_t i=0; i<NUM_CHANNELS; i++) 		// store channels
+				{
+					rcPinValue[i] = rcPinValueRAW[i];
+				}
+				valid_frame = true;							// mark as valid
+				//_last_update = millis();					// enable to enable APM time FS feature
+			}
+			else{
+				failsafeCnt++; 								// that's bad
+				valid_frame = false;						// reset validity
+			}
+			curr_ch_number=0;								// always rest on synch
 		}
 
 		// PAKU Process FAILURE - start from beginning ....
@@ -349,7 +288,6 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	failsafeCnt = 0;
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
-	///watchdog_counter = 0;
 	
 	if (bv_mode) {
 		// BlackVortex Mapping
@@ -552,8 +490,15 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 			}
 		}
 	#endif
-  
+
 	// Limit values to a valid range
+
+    // paku debug
+	if (ch==7){
+		result = 1500+failsafeCnt;
+	}
+
+
 	result = constrain(result,MIN_PULSEWIDTH,MAX_PULSEWIDTH);
 	return(result);
 }
@@ -561,20 +506,6 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 uint8_t APM_RC_PIRATES::GetState(void)
 {
 	bool _tmp = valid_frame;
-
-	/*
-	// Check we still receiveing good packets
-	if (watchdog_counter > WATCHDOG_THRESHOLD) {
-		if (watchdog_counter != 255) {
-			good_sync_received = false; // Reset GOOD_SYNC_RECEIVED flag
-			valid_frame = false;
-			watchdog_counter = 255;
-		}
-	}	else {
-		watchdog_counter++;
-	}
-
-	*/
 
 	#if FS_ENABLED == ENABLED
 		if(_tmp && !failsafe_enabled)
@@ -592,6 +523,7 @@ uint8_t APM_RC_PIRATES::GetState(void)
 	#endif
 
 	return(_tmp);
+	///return(1);
 }
 
 

@@ -128,7 +128,10 @@ void output_min()
 #define RADIO_FS_TIMEOUT_MS 2000       // 2 seconds
 static void read_radio()
 {
-    if (APM_RC.GetState() == 1) {
+	
+	uint8_t state = APM_RC.GetState();  
+	 
+    if (state == 1) {    	
         ap_system.new_radio_frame = true;
         g.rc_1.set_pwm(APM_RC.InputCh(CH_1));
         g.rc_2.set_pwm(APM_RC.InputCh(CH_2));
@@ -146,7 +149,10 @@ static void read_radio()
         g.rc_3.control_in = min(g.rc_3.control_in, MAXIMUM_THROTTLE);
 #endif
     }else{
-        // turn on throttle failsafe if no update from ppm encoder for 2 seconds
+		
+    	//cliSerial->printf_P(PSTR("** %d\n"),state); //debug    	
+        
+    	// turn on throttle failsafe if no update from ppm encoder for 2 seconds
         /* MPNG: Do nothing, because we have our version of Signal loss failsafe in APM_RC library
         uint32_t last_rc_update = APM_RC.get_last_update();
         if ((millis() - last_rc_update >= RADIO_FS_TIMEOUT_MS) && g.failsafe_throttle && motors.armed() && !ap.failsafe) {
