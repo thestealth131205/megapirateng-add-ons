@@ -1091,6 +1091,7 @@ static void print_test_disabled()
 static int8_t
 test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 {
+	int16_t counter;
 	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
 		print_test_disabled();
 		return (0);
@@ -1098,7 +1099,8 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 		print_hit_enter();
 		delay(1000);
 		while(1){
-						delay(20);
+			
+			delay(20);
 
 			// Filters radio input - adjust filters in the radio.pde file
 			// ----------------------------------------------------------
@@ -1116,9 +1118,10 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 								g.rc_6.radio_in,
 								g.rc_7.radio_in,
 								g.rc_8.radio_in);
+				counter=0;
 			} else {
-				/// PAKU It's not a NO SIGNAL but no NEW FRAME - removed wrong description, now if no NEW frame just sending '-'
-				cliSerial->printf_P(PSTR("-\n"));
+				/// PAKU It's not a NO SIGNAL but no NEW FRAME - removed wrong description, now if no NEW frame just sending '-' + counter
+				cliSerial->printf_P(PSTR("- %d\n"),counter++);
 			}
 			
 			/// PAKU Show if failsafe set

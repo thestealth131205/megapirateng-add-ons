@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED DISABLE
+#define FS_ENABLED ENABLED
 
 // PPM_SUM filtering
 #define FILTER FILTER_DISABLED
@@ -60,9 +60,7 @@ volatile uint32_t _last_update = 0;
 
 // failsafe counter
 volatile uint8_t failsafeCnt = 0;
-/// PAKU disable watchgod_counter
-//volatile uint8_t watchdog_counter;
-bool failsafe_enabled = false;
+static bool failsafe_enabled = false;
 volatile bool valid_frame = false;
 
 // ******************
@@ -70,7 +68,7 @@ volatile bool valid_frame = false;
 // ******************
 volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
 volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
-volatile bool good_sync_received = false;
+
 
 typedef void (*ISRFuncPtr)(void);
 ISRFuncPtr FireISRRoutine = 0;
@@ -139,12 +137,9 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			curr_ch_number++;
 
 			if (curr_ch_number>MAX_CH_NUM) {
-				failsafeCnt++; 								// that's bad
 				valid_frame = false;						//reset validity
 				GotFirstSynch = false;						//reset decoder
 			}
-			if (curr_ch_number==1) valid_frame = false;		//reset validity on 1st ch
-
 		}
 
 
@@ -155,8 +150,6 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 		{
 			GotFirstSynch = true;
 			curr_ch_number=0;
-			failsafeCnt = 0;
-			failsafe_enabled = true;
 			valid_frame = false;
 		}
 
@@ -167,11 +160,13 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 
 			// if we have got at least 4 chs
 			if (curr_ch_number>3){
+				valid_frame = false;						// lock reading for writing
 				for (uint8_t i=0; i<NUM_CHANNELS; i++) 		// store channels
 				{
 					rcPinValue[i] = rcPinValueRAW[i];
 				}
-				valid_frame = true;							// mark as valid
+				valid_frame = true;							// mark data as valid
+				failsafeCnt=0; 								// reset FS counter we are OK.
 				//_last_update = millis();					// enable to enable APM time FS feature
 			}
 			else{
@@ -184,10 +179,10 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 		// PAKU Process FAILURE - start from beginning ....
 		// that's bad - we do not want to be here at any time ....
 		else {
-			GotFirstSynch = false;
-			failsafeCnt++;
+			///failsafeCnt++;
 			curr_ch_number=0;
-			valid_frame = false;
+			valid_frame = false;						//reset validity
+			GotFirstSynch = false;						//reset decoder
 		}
 	}
 //	digitalWrite(46,0);
@@ -491,14 +486,13 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 		}
 	#endif
 
-	// Limit values to a valid range
 
     // paku debug
-	if (ch==7){
-		result = 1500+failsafeCnt;
-	}
+	//if (ch==7){
+	//	result = 1500+failsafeCnt;
+	//}
 
-
+	// Limit values to a valid range
 	result = constrain(result,MIN_PULSEWIDTH,MAX_PULSEWIDTH);
 	return(result);
 }
@@ -523,7 +517,6 @@ uint8_t APM_RC_PIRATES::GetState(void)
 	#endif
 
 	return(_tmp);
-	///return(1);
 }
 
 
