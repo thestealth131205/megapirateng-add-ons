@@ -6,4 +6,5 @@ BOARD=mega2560
 PORT=com14
 # Uncomment, if you need a lot of informations on the build process.
 #VERBOSE=no
+SVN_REV=yes
 

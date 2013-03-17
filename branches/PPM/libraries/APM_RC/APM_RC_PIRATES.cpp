@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED DISABLE
+#define FS_ENABLED ENABLED
 
 // PPM_SUM filtering
 #define FILTER FILTER_DISABLE
@@ -60,7 +60,8 @@ volatile uint32_t _last_update = 0;
 
 // failsafe counter
 volatile uint8_t failsafeCnt = 0;
-volatile uint8_t watchdog_counter;
+/// PAKU disable watchgod_counter
+//volatile uint8_t watchdog_counter;
 bool failsafe_enabled = false;
 volatile bool valid_frame = false;
 
@@ -124,7 +125,7 @@ void APM_RC_PIRATES::_timer5_capt_cb(void)
 				}
 				// If we read at least 4 channel - reset failsafe counter
 				failsafeCnt = 0;
-				watchdog_counter = 0;
+				///watchdog_counter = 0;
 				valid_frame = true;
 //				_last_update = millis();
 			}
@@ -289,7 +290,7 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	// failsafe counter must be zero if all ok  
 	if (mask & 1<<pinRcChannel[2]) {    // If pulse present on THROTTLE pin, clear FailSafe counter  - added by MIS fow multiwii (copy by SovGVD to megapirateNG)
 		failsafeCnt = 0;
-		watchdog_counter = 0;
+//		watchdog_counter = 0;
 //		_last_update = millis();
 	}
 }
@@ -321,7 +322,7 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	failsafeCnt = 0;
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
-	watchdog_counter = 0;
+	///watchdog_counter = 0;
 	
 	if (bv_mode) {
 		// BlackVortex Mapping
