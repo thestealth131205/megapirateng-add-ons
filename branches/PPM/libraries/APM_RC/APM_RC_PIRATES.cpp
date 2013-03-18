@@ -79,36 +79,35 @@ ISR(PCINT2_vect) {
 }
 
 
-
-// Serial PPM support on PL1(ICP5) pin
-void APM_RC_PIRATES::_timer5_capt_cb(void)
-{
-	//uint16_t Pulse;
-	uint16_t period_time,curr_time;
-	static uint16_t last_time;
-	static uint8_t curr_ch_number;
-	static bool GotFirstSynch;
-	
-	curr_time = ICR5; ///PAKU that's the only diff for V2 and V1 versions :)
-
-}
-
-
 void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 { 
 //	digitalWrite(46,1);
-	uint16_t curr_time,period_time;
+	uint16_t curr_time;
+	uint16_t period_time;
 	uint8_t mask;
-	uint8_t pin;
+	uint8_t pin = 1;				// for V2 and V1 compatibility
 	static uint16_t last_time;
 	static uint8_t PCintLast;
 	static uint8_t curr_ch_number;
 	static bool GotFirstSynch;
 
-	curr_time = TCNT5; // 0.5us resolution
-	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
-	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
-	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
+
+	switch (use_ppm)
+	{
+		case SERIAL_PPM_ENABLED:
+
+			curr_time = TCNT5;         // 0.5us resolution
+			pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
+			mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
+			PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
+			break;
+		case SERIAL_PPM_ENABLED_PL1:
+			curr_time = ICR5; 		  ///PAKU that's the only diff for V2 and V1 versions :)
+			break;
+		default : curr_time = 0;      // in any case - do nothing
+			break;
+	}
+
 
 	// Rising edge detection
 	if (pin & 1) { 
@@ -361,7 +360,7 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 		case SERIAL_PPM_ENABLED_PL1:
 					FireISRRoutine = 0;
 					pinMode(48, INPUT); // ICP5 pin (PL1) (PPM input) CRIUS v2
-					isr_reg->register_signal(ISR_REGISTRY_TIMER5_CAPT, _timer5_capt_cb );
+					isr_reg->register_signal(ISR_REGISTRY_TIMER5_CAPT, _ppmsum_mode_isr );
 					TCCR5B |= (1<<ICES5); // Input capture on rising edge 
 					TIMSK5 |= (1<<ICIE5); // Enable Input Capture interrupt. Timer interrupt mask  
 					PCMSK2 = 0;	// Disable INT for pin A8-A15
@@ -500,6 +499,8 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 uint8_t APM_RC_PIRATES::GetState(void)
 {
 	bool _tmp = valid_frame;
+
+	valid_frame = false;				//reset validity on read, just no to read more then once.
 
 	#if FS_ENABLED == ENABLED
 		if(_tmp && !failsafe_enabled)

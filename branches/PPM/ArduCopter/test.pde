@@ -1091,23 +1091,32 @@ static void print_test_disabled()
 static int8_t
 test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 {
-	int16_t counter;
+
+// PAKU by changing this delay you may stress test your Rx transmision
+// if there will be no NEW FRAME data ready - you will see "unserviced requests" counter value
+// 20 -  50Hz  
+// 10 - 100Hz default
+//  5 - 200Hz 
+#define RX_TEST_DELAY 10
+
 	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
 		print_test_disabled();
 		return (0);
 	#else
+		int16_t counter = 1;		
+		
+		cliSerial->printf_P(PSTR("Test at %dHz\n"),1000/RX_TEST_DELAY);		
+
 		print_hit_enter();
 		delay(1000);
 		while(1){
 			
-			delay(20);
+			delay(RX_TEST_DELAY);
 
 			// Filters radio input - adjust filters in the radio.pde file
 			// ----------------------------------------------------------
 			read_radio();
 
-			// servo Yaw
-			//APM_RC.OutputCh(CH_7, g.rc_4.radio_out);
 			if (ap_system.new_radio_frame) {
 				cliSerial->printf_P(PSTR("%d,%d,%d,%d,%d,%d,%d,%d\n"),
 								g.rc_1.radio_in,
@@ -1118,7 +1127,7 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 								g.rc_6.radio_in,
 								g.rc_7.radio_in,
 								g.rc_8.radio_in);
-				counter=0;
+				counter=1;
 			} else {
 				/// PAKU It's not a NO SIGNAL but no NEW FRAME - removed wrong description, now if no NEW frame just sending '-' + counter
 				cliSerial->printf_P(PSTR("- %d\n"),counter++);
