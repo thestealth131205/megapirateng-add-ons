@@ -4,7 +4,7 @@
 
 The native environment for megapirateNg is the Arduino. But the problem with Arduino is that it has a very simple editor and has some temp folders problems while building.
 
-The original source code from ArduPilot project has the other build method implemented but it is made for Linux environment only.
+The original source code from "ArduPilot" project has the other build method implemented but it is made for Linux environment only.
 
 So here comes my solution for Windows users who wants to use better editor (like Eclipse) and/or a lot better build tools (like industry standard "make").
 
