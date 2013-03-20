@@ -25,7 +25,7 @@
 // FAILSAFE SETTINGS
 // This FailSafe will detect signal loss (or receiver power failure) on Throttle pin
 // In order to work properly, you must also enable Failsafe in Mission Planner
-#define FS_ENABLED ENABLED
+#define FS_ENABLED DISABLE
 
 // PPM_SUM filtering
 #define FILTER FILTER_DISABLED
@@ -42,9 +42,6 @@
 # error Wrong AVARAGE_FACTOR selected. Minimum value 1
 #endif
 
-
-// Used to count missed packets (to detect signal loss)
-#define WATCHDOG_THRESHOLD 3
 
 // PAKU commented out for better Eclipse view :)
 //#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
