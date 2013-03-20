@@ -26,7 +26,9 @@ static int8_t	test_relay(uint8_t argc,	 	const Menu::arg *argv);
 static int8_t	test_wp(uint8_t argc, 			const Menu::arg *argv);
 #if HIL_MODE != HIL_MODE_ATTITUDE
 static int8_t	test_baro(uint8_t argc, 		const Menu::arg *argv);
+#if CONFIG_SONAR == ENABLED
 static int8_t	test_sonar(uint8_t argc, 		const Menu::arg *argv);
+#endif
 #endif
 static int8_t	test_mag(uint8_t argc, 			const Menu::arg *argv);
 static int8_t	test_optflow(uint8_t argc, 		const Menu::arg *argv);
@@ -80,7 +82,9 @@ const struct Menu::command test_menu_commands[] PROGMEM = {
 //	{"toy",			test_toy},
 #if HIL_MODE != HIL_MODE_ATTITUDE
 	{"altitude",	test_baro},
+#if CONFIG_SONAR == ENABLED
 	{"sonar",		test_sonar},
+#endif
 #endif
 	{"compass",		test_mag},
 	{"optflow",		test_optflow},
@@ -868,7 +872,7 @@ test_mag(uint8_t argc, const Menu::arg *argv)
  *       }
  *  }*/
 
-#if HIL_MODE != HIL_MODE_ATTITUDE
+#if (HIL_MODE != HIL_MODE_ATTITUDE) & (CONFIG_SONAR ==ENABLED)
 /*
  *  test the sonar
  */

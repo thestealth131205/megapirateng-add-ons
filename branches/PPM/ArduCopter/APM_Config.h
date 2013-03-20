@@ -46,6 +46,9 @@
 #define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
+// PAKU warrning DISABLING sonar makes PL1 unusable for V2 board.
+// if you use v2 board you have to enable sonar here - but you can disable it in MP if not used
+#define CONFIG_SONAR DISABLED
 #define MAX_SONAR_RANGE 400
 
 // This OSD works on the Serial1 port
