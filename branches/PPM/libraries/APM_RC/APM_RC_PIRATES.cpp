@@ -11,6 +11,15 @@
  *		             Automatically resets when we call InputCh to read channels
  *		
  */
+//********************************************************************************
+// 2013-03-18 PAKU
+// - variables structure redefined & speed up
+// - PPM Decoder rewritten
+// - FS_ENABLE bug fixed
+// - SYNCH frame period limit added
+
+
+
 
 #include "APM_RC_PIRATES.h"
 
@@ -109,11 +118,11 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 	// Rising edge detection
 	if (pin & 1) { 
 
-		// PAKU it should be guaranteed to wrap around - do not need to check. (unsigned values)
+		// it should be guaranteed to wrap around - do not need to check. (unsigned values)
 		period_time = (curr_time-last_time) >> 1;
 		last_time = curr_time; // Save edge time
 			
-		// PAKU Process channel pulse
+		// Process channel pulse
 		// Good widths ??
 		if ((period_time < MAX_PULSEWIDTH) && (period_time > MIN_PULSEWIDTH) && (GotFirstSynch)) {
 			if (curr_ch_number < NUM_CHANNELS) {
@@ -129,7 +138,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 				#endif
 
 			}
-			// PAKU count always even if we will get more then NUM_CHANNELS >> fault detection.
+			// Count always even if we will get more then NUM_CHANNELS >> fault detection.
 			curr_ch_number++;
 
 			if (curr_ch_number>MAX_CH_NUM) {
@@ -139,7 +148,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 		}
 
 
-		// PAKU Process First SYNCH
+		// Process First SYNCH
 		// it's SYNCH
 		// That's our first SYNCH, so make stuff ready....
 		else if ((period_time > MIN_PPM_SYNCHWIDTH) && (!GotFirstSynch))
@@ -149,7 +158,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			valid_frame = false;
 		}
 
-		// PAKU Process any other SYNCH
+		// Process any other SYNCH
 		// it's SYNCH
 		else if ((period_time > MIN_PPM_SYNCHWIDTH))
 		{
@@ -172,7 +181,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 			curr_ch_number=0;								// always rest on synch
 		}
 
-		// PAKU Process FAILURE - start from beginning ....
+		// Process FAILURE - start from beginning ....
 		// that's bad - we do not want to be here at any time ....
 		else {
 			///failsafeCnt++;
