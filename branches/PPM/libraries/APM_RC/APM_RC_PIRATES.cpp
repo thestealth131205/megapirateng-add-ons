@@ -58,32 +58,60 @@
 //#else
 
 // Variable definition for Input Capture interrupt
-uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
-bool bv_mode;
-uint8_t *pinRcChannel;
+static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
+static bool bv_mode;
 
-volatile uint32_t _last_update = 0;
+static uint8_t *pinRcChannel;
+
+static volatile uint32_t _last_update = 0;
 
 // failsafe counter
-volatile uint8_t failsafeCnt = 0;
+static volatile uint8_t failsafeCnt = 0;
 static bool failsafe_enabled = false;
-volatile bool valid_frame = false;
+static volatile bool valid_frame = false;
 
 // ******************
 // rc functions split channels
 // ******************
-volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
-volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
+static volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
+static volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
 
+//************************************************************************************
+// ISR routines
+//************************************************************************************
 
 typedef void (*ISRFuncPtr)(void);
-ISRFuncPtr FireISRRoutine = 0;
+static ISRFuncPtr FireISRRoutine = 0; //here the selected ISR will be stored
 
 ISR(PCINT2_vect) {
 	if (FireISRRoutine)
 		FireISRRoutine();
 }
 
+static volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+// Software PWM generator (used for Gimbal)
+ISR(TIMER5_COMPB_vect)
+{ // set the corresponding pin to 1
+	static char OCRstate = 7;
+	OCRstate++;
+	OCRstate&=15;
+	if (bv_mode) {
+		switch (OCRstate>>1)
+		{
+			case 0: if(OCRstate&1)PORTC&=(1<<5)^255; else PORTC|=(1<<5);break;	//d32, cam roll
+			case 1: if(OCRstate&1)PORTC&=(1<<4)^255; else PORTC|=(1<<4);break;	//d33, cam pitch
+		}
+	} else {
+		switch (OCRstate>>1)
+		{
+			case 0:	if(OCRstate&1)PORTL&=(1<<5)^255; else PORTL|=(1<<5);break;	//d44, cam Roll
+			case 1:	if(OCRstate&1)PORTL&=(1<<4)^255; else PORTL|=(1<<4);break;	//d45, cam Pitch
+		}
+	}
+	if(OCRstate&1)OCR5B+=5000-OCRxx1[OCRstate>>1]; else OCR5B+=OCRxx1[OCRstate>>1];
+}
+
+//************************************************************************************
 
 void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 { 
@@ -375,30 +403,6 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
 }
 
-volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
-
-
-// Software PWM generator (used for Gimbal)
-ISR(TIMER5_COMPB_vect)
-{ // set the corresponding pin to 1
-	static char OCRstate = 7;
-	OCRstate++;
-	OCRstate&=15;
-	if (bv_mode) {
-		switch (OCRstate>>1)
-		{
-			case 0: if(OCRstate&1)PORTC&=(1<<5)^255; else PORTC|=(1<<5);break;	//d32, cam roll
-			case 1: if(OCRstate&1)PORTC&=(1<<4)^255; else PORTC|=(1<<4);break;	//d33, cam pitch
-		}
-	} else {
-		switch (OCRstate>>1)
-		{
-			case 0:	if(OCRstate&1)PORTL&=(1<<5)^255; else PORTL|=(1<<5);break;	//d44, cam Roll
-			case 1:	if(OCRstate&1)PORTL&=(1<<4)^255; else PORTL|=(1<<4);break;	//d45, cam Pitch
-		}
-	}
-	if(OCRstate&1)OCR5B+=5000-OCRxx1[OCRstate>>1]; else OCR5B+=OCRxx1[OCRstate>>1];
-}
 
 /*
 ch			3		4		1		2		7		8		10		11

@@ -1101,7 +1101,7 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 // 20 -  50Hz  
 // 10 - 100Hz default
 //  5 - 200Hz 
-#define RX_TEST_DELAY 10
+#define RX_TEST_DELAY 5
 
 	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
 		print_test_disabled();
