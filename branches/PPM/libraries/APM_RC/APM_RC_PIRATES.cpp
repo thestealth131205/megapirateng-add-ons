@@ -13,9 +13,9 @@
  */
 //********************************************************************************
 // 2013-03-18 PAKU
-// - variables structure redefined & speed up
+// - variables structure redefined & speeded up
 // - PPM Decoder rewritten
-// - FS_ENABLE bug fixed
+// - FS_ENABLED bug fixed
 // - SYNCH frame period limit added
 
 
@@ -375,12 +375,13 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
 }
 
-uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800,};
-char OCRstate = 7;
+volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+
 
 // Software PWM generator (used for Gimbal)
 ISR(TIMER5_COMPB_vect)
 { // set the corresponding pin to 1
+	static char OCRstate = 7;
 	OCRstate++;
 	OCRstate&=15;
 	if (bv_mode) {
