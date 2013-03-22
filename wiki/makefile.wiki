@@ -8,7 +8,7 @@ The original source code from "ArduPilot" project has the other build method imp
 
 So here comes my solution for Windows users who wants to use better editor (like Eclipse) and/or a lot better build tools (like industry standard "make").
 
-makefile for Cygwin  is currently included in the main megapirateNG distribution.
+
 
 === makefile How-To ===
 
