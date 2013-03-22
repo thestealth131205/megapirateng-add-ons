@@ -1,13 +1,13 @@
 #summary Extended FrSky LCD panel functionality.
 
-= OSD_FrSky =
+= FrSky Telemetry =
 
-Here are the mods for OSD_FrSky:
+Here are the mods for FrSky telemetry :
 
    # added functionality of displaying the current state of the copter using Fuel Gauge located on the FrSky LCD screen.
    # Turnigy 9x/Open9x Voltage/Current sensors integration by HaDa
 
-= OSD_FrSky How-To =
+==How-To ==
 
 All instructions are located inside the OSD_FrSky.pde file.
 
