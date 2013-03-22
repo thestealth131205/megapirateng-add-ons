@@ -1,4 +1,4 @@
-#LED & Buzzer definition explained.
+#summary LED & Buzzer definition explained.
 
 = LEDs & Buzzer=
 

@@ -1,4 +1,4 @@
-#Extended FrSky LCD panel functionality.
+#summary Extended FrSky LCD panel functionality.
 
 = OSD_FrSky =
 

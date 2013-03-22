@@ -1,4 +1,4 @@
-#How to build megapirateNG outside the Arduino editor.
+#summary How to build megapirateNG outside the Arduino editor.
 
 = makefile =
 
