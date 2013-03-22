@@ -19,7 +19,7 @@
 
 // PPM_SUM(CPPM) Signal processing
 // WARRING: Sonar is full disabled by default now.
-// But for PPM on PL1 (v1) or PWM Rx mode you have to enable sonar - few lines below.
+// But for PPM on PL1 (v2) or PWM Rx mode you have to enable sonar - few lines below.
 #define SERIAL_PPM SERIAL_PPM_ENABLED
 /*
 	SERIAL_PPM_DISABLED
@@ -49,7 +49,7 @@
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
 // PAKU warrning DISABLING sonar makes PL1 unusable for V2 board. And PWM mode for all boards.
-// if you use v2 board PWM you have to enable sonar here - but you can disable it in MP if not used
+// if you use v2 board or PWM - you have to ENABLE sonar here - but you can disable it in MP - if not used
 // comment 1 line below to re-enable.
 #define CONFIG_SONAR DISABLED
 #define MAX_SONAR_RANGE 400

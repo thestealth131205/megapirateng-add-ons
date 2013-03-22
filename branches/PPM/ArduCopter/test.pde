@@ -1099,9 +1099,9 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 // PAKU by changing this delay you may stress test your Rx transmision
 // if there will be no NEW FRAME data ready - you will see "unserviced requests" counter value
 // 20 -  50Hz  
-// 10 - 100Hz default
+// 10 - 100Hz default for test
 //  5 - 200Hz 
-#define RX_TEST_DELAY 5
+#define RX_TEST_DELAY 10
 
 	#if defined( __AVR_ATmega1280__ )  // test disabled to save code size for 1280
 		print_test_disabled();

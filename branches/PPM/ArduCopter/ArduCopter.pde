@@ -2,8 +2,6 @@
 
 #include "revision.h"
 
-//#define THISFIRMWARE "MegaPirateNG Add-Ons V2.9 R7"
-
 /*
  *  ArduCopter Version 2.9.1
  *
