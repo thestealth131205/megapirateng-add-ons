@@ -2,12 +2,32 @@
 
 = OSD_FrSky =
 
-Main part of the mod is the added functionality of displaying the current state of the copter using Fuel Gauge located on the FrSky LCD screen.  
+Here are the mods for OSD_FrSky:
 
-=== OSD_FrSky How-To ===
+   # added functionality of displaying the current state of the copter using Fuel Gauge located on the FrSky LCD screen.
+   # Turnigy 9x/Open9x Voltage/Current sensors integration by HaDa
 
-Instructions are located inside the OSD_FrSky.pde file.
+= OSD_FrSky How-To =
+
+All instructions are located inside the OSD_FrSky.pde file.
 
 http://code.google.com/p/megapirateng-add-ons/source/browse/trunk/ArduCopter/OSD_FrSky.pde
 
+== "Copter State" Fuel Gauge ==
+
 You may fine tune module to work with your mpNG version (2.8/2.9) by un-commenting the lines in the *void send_Fuel_level(void)* function.
+
+== Turnigy 9x/Open9x Voltage/Current sensors integration ==
+
+To measure the voltage and the current with your All in One Board (Crius or similar) you need a suitable voltage and current sensor board. On the Crius AIOP V2.0 the voltage input PIN is A0 the current is measured via PIN A1.
+
+Suitable Voltage/Current sensors are the mini AttoPilot modules or the APM 2.5 Power Module. The Module has to be connected between the battery and the ESCs. In case of the "APM 2.5 Power Module" a BEC with a switch power supply is integrated on board which could be used to power the Crius AIOP (do not forget to remove the voltage jumper).
+
+The FrSky telemetry integrates the voltage/current measurement. It could be shown for example on a Turnigy 9x with FrSky-Mod and Open9x installed on it. The display shows voltage and current, the current power uptake in W as an additional information it also shows the used mAh. The Crius AIOP is connected to the telemetry capable receiver via S3 (9600 baud, connect TX-AIOP to RX-FrSky-receiver) but do not forget to add a Level switcher thus the FrSky receiver awaits 3.3V TTL signals on its serial interface (a simple transistor is of use here).
+
+
+
+
+
+
+
