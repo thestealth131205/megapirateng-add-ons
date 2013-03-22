@@ -29,6 +29,11 @@
 // 08.03.2013 by paku
 // "Pirate state" ver. 2.8Rx compatibility added
 // - uncomment/replace 2.8Rx version inside the send_Fuel_level(void) code
+// ****************************************************************
+// 22.03.2013 by HaDa
+// "Voltage (Ampere) sensor"
+// - the voltage and current will be shown correctly in FrSky/Open9x in 0.2V steps
+// ****************************************************************
 
 #if OSD_PROTOCOL == OSD_PROTOCOL_FRSKY
 
@@ -189,26 +194,30 @@ static void sendDataTail(void)
 //-----------------   Telemetrie Datas   ------------------------------------------   
 //*********************************************************************************
 
-// Voltage (Ampere Sensor) 
-void send_Voltage_ampere(void)
-{
-	uint16_t Datas_Voltage_Amp_bp;
+// Voltage (Ampere Sensor) - Version by Hanno
+   void send_Voltage_ampere(void)
+   {
+	uint16_t Datas_Voltage_Amp_bp; //define the needed Variables, bp=before the comma, ap=after the comma - will be sent seperately
 	uint16_t Datas_Voltage_Amp_ap;
-	uint16_t Datas_Current;
+	uint16_t Datas_Current;  
+	
+	float volts = battery_voltage1 * 11 / 21; //to convert the voltage in something the original FrSky/Open9x algorithm can interpret, the resolution will be in 0,2V steps
+											  //FrSky/Open9x will interpret the data with frskyData.hub.vfas = ((frskyData.hub.volts_bp * 100 + frskyData.hub.volts_ap * 10) * 21) / 110;
+	
+	Datas_Voltage_Amp_bp = volts;			  //Modification of the Data set before sending it off
+	Datas_Voltage_Amp_ap = (volts-int(volts)) * 10;
+	
+	Datas_Current = current_amps1 * 10; // times ten, to show the correct value on FrSky/in Open9x
 
-	float volts = battery_voltage1 * 2; //in 0.5v resolution
-	Datas_Voltage_Amp_bp = volts;
-	Datas_Voltage_Amp_ap = (volts - int(volts)) * 100;
-	Datas_Current = current_amps1;
-
-	sendDataHead(ID_Voltage_Amp_bp);
+	sendDataHead(ID_Voltage_Amp_bp); //send the data
 	write_FrSky16(Datas_Voltage_Amp_bp);
 	sendDataHead(ID_Voltage_Amp_ap);
-	write_FrSky16(Datas_Voltage_Amp_ap);
+	write_FrSky16(Datas_Voltage_Amp_ap);  
 	sendDataHead(ID_Current);
 	write_FrSky16(Datas_Current);
 
-}
+   }
+
 
 // Temperature 1
 void send_Temperature1(void)
