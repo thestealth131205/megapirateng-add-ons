@@ -13,8 +13,7 @@ extern "C" {
 #endif
 
 volatile char sonar_meas=0;
-volatile unsigned int sonar_data=0, sonar_data_start=0, pre_sonar_data=0; // Variables for calculating length of Echo impulse
-volatile uint8_t sonar_error_cnt=0;
+volatile unsigned int sonar_data=0; // Variables for calculating length of Echo impulse
 volatile char sonar_skip=0;
 
 // Sonar read interrupts
@@ -37,6 +36,7 @@ ISR(TIMER5_OVF_vect) // Counter overflowed, 12us elapsed
 
 ISR(PCINT0_vect)
 {
+	static unsigned int sonar_data_start; // 0 on init always
 	if (sonar_meas==0) {
 		if (PINB & B00010000) { 
 			sonar_data_start = TCNT5; // We got 1 on Echo pin, remeber current counter value
@@ -66,6 +66,8 @@ void AP_AnalogSource_PIRATES::init(void)
 
 float AP_AnalogSource_PIRATES::read(void)
 {
+		static unsigned int pre_sonar_data;
+		static uint8_t sonar_error_cnt;
 		float result;
 		if (((sonar_data < 590) || (sonar_data > 59000)) && (pre_sonar_data > 0) ) {	//value must be 5cm > X < 5m
 			if (sonar_error_cnt > 50) {

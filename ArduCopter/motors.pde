@@ -165,6 +165,8 @@ static void init_arm_motors()
     // finally actually arm the motors
     motors.armed(true);
     set_armed(true);
+    
+    auto_disarming_counter = 0;
 
     // reenable failsafe
     failsafe_enable();
@@ -176,7 +178,6 @@ static void init_disarm_motors()
 #if HIL_MODE != HIL_MODE_DISABLED || defined(DESKTOP_BUILD)
     gcs_send_text_P(SEVERITY_HIGH, PSTR("DISARMING MOTORS"));
 #endif
-
     motors.armed(false);
     set_armed(false);
 
