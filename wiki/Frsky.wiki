@@ -1,0 +1,13 @@
+#Extended FrSky LCD panel functionality.
+
+= OSD_FrSky =
+
+Main part of the mod is the added functionality of displaying the current state of the copter using Fuel Gauge located on the FrSky LCD screen.  
+
+=== OSD_FrSky How-To ===
+
+Instructions are located inside the OSD_FrSky.pde file.
+
+http://code.google.com/p/megapirateng-add-ons/source/browse/trunk/ArduCopter/OSD_FrSky.pde
+
+You may fine tune module to work with your mpNG version (2.8/2.9) by un-commenting the lines in the *void send_Fuel_level(void)* function.
