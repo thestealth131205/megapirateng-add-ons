@@ -16,7 +16,7 @@
 // - variables structure redefined & speeded up
 // - PPM Decoder rewritten
 // - FS_ENABLED bug fixed
-// - SYNCH frame period limit added
+// - SYNCH frame period limit added for fine tuning Rx SYNCH period.
 
 
 
@@ -81,7 +81,7 @@ static volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
 //************************************************************************************
 
 typedef void (*ISRFuncPtr)(void);
-static ISRFuncPtr FireISRRoutine = 0; //here the selected ISR will be stored
+static ISRFuncPtr FireISRRoutine = 0; //here the selected ISR address will be stored
 
 ISR(PCINT2_vect) {
 	if (FireISRRoutine)
