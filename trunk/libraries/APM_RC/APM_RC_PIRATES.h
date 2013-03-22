@@ -3,8 +3,18 @@
 
 #define MIN_PULSEWIDTH 900
 #define MAX_PULSEWIDTH 2100
+// PAKU tune MIN_PPM_SYNCHWIDTH if you fighting known FrSky to short PPM frame length problem.
 #define MIN_PPM_SYNCHWIDTH  2500
-#define MAX_CH_NUM  12
+#define MAX_CH_NUM  10
+
+///paku added for compatibility
+// Just so that it's completely clear...
+#define ENABLED			1
+#define DISABLED		0
+// this avoids a very common config error
+#define ENABLE ENABLED
+#define DISABLE DISABLED
+
 
 #define SERIAL_PPM_DISABLED 0
 #define SERIAL_PPM_ENABLED 1

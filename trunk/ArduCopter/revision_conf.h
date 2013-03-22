@@ -1,2 +1,1 @@
-#define THISFIRMWARE "MegaPirateNG V2.9 R7.$WCREV$ $WCNOW=%x$"
-
+#define THISFIRMWARE "MegaPirateNG Add-Ons V2.9.1 R7.$WCREV$ $WCNOW=%Y/%m/%d$"
