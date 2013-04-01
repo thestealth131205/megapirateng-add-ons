@@ -2,7 +2,7 @@
 
 = makefile =
 
-The native environment for megapirateNg is the Arduino. But the problem with Arduino is that it has a very simple editor and has some temp folders problems while building.
+The native environment for megapirateNG is the Arduino. But the problem with Arduino is that it has a very simple editor and has some temp folders problems while building.
 
 The original source code from "ArduPilot" project has the other build method implemented but it is made for Linux environment only.
 
