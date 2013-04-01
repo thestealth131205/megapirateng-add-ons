@@ -12,7 +12,7 @@ So here comes my solution for Windows users who wants to use better editor (like
 
 === makefile How-To ===
 
-The newest instructions on preparing for using the makefile are always located inside the makefile itself.
+The newest instructions on configuration for using the makefile are always located inside the makefile itself.
 
 http://code.google.com/p/megapirateng-add-ons/source/browse/trunk/libraries/AP_Common/Arduino.cygwin.mk
 
