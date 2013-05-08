@@ -2,4 +2,5 @@
     * [Frsky Mods for OSD_FrSky module]
     * [leds Leds how-to]
     * [makefile Building outside Arduino]
+    * [ppm_decoder Replaced PPM decoder]    
     * [sonar_disable How to fully disable sonar]
