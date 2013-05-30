@@ -1939,7 +1939,7 @@ void update_throttle_mode(void)
         // manual throttle but with angle boost
         if (g.rc_3.control_in <= 0) {
         	thr_delay_counter++;
-        	if (thr_delay_counter>=100)     //delay at about 2sec.       		        		
+        	if (thr_delay_counter>=100)     //delay for about 2sec.       		        		
         		set_throttle_out(0, false); // no need for angle boost with zero throttle
         }else{
         	thr_delay_counter=0;
