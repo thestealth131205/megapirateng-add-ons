@@ -1,4 +1,8 @@
-Release Notes for MegaPirateNG 2.9 R7 (ArduCopter 2.9.1)
+Release Notes for mpNG Add-Ons based on MegaPirateNG 2.9 R7 (ArduCopter 2.9.1)
+
+For description of the megaPiratesNG-AddOns mods included with this build visit 
+http://code.google.com/p/megapirateng-add-ons/
+
 
 === How to compile MegaPirateNG ===
 

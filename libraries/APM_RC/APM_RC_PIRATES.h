@@ -7,7 +7,7 @@
 #define MIN_PPM_SYNCHWIDTH  2500
 #define MAX_CH_NUM  10
 
-///paku added for compatibility
+///PAKU added for compatibility
 // Just so that it's completely clear...
 #define ENABLED			1
 #define DISABLED		0
