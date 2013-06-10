@@ -3,4 +3,5 @@
     * [leds Leds how-to]
     * [makefile Building outside Arduino]
     * [ppm_decoder Replaced PPM decoder]    
-    * [sonar_disable How to fully disable sonar]
+    * [sonar_disable How to disable sonar (fully)]
+    * [stab_thr_off_delay Delayed motors off for STAB mode]
