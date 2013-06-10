@@ -7,9 +7,11 @@ This mod delays sending OFF command to the motors by a given time, so if you mov
 
 
 Look here to see how to define the delay:
+
 http://code.google.com/p/megapirateng-add-ons/source/browse/trunk/ArduCopter/APM_Config.h?spec=svn104&r=104#99
 
 and how it's done inside the code (line 1937):
+
 http://code.google.com/p/megapirateng-add-ons/source/diff?spec=svn104&r=104&format=side&path=/trunk/ArduCopter/ArduCopter.pde
 
 
