@@ -79,11 +79,6 @@
 #define SERIAL2_BAUD			 115200	// GPS port
 #define SERIAL3_BAUD			 57600	// Telemetry (MAVLINK) port
 
-// New in 2.0.43, but unused in MegairateNG
-// MPNG: Piezo uses AN5 pin in ArduCopter, we uses AN5 for CLI switch
-///#define PIEZO	DISABLED
-///#define PIEZO_LOW_VOLTAGE	DISABLED
-///#define PIEZO_ARMING		DISABLED
 
 ///paku - define LEDs on FIRST firmware upload - could be changed later in Mission Planner
 // Join options by "+" sign
@@ -101,6 +96,9 @@
 	LEDS_GPS_ON_NAV
 */
 
+///PAKU 
+// motors off delay for STAB mode x/50sec ... give max about 100 = 2 sec
+#define STAB_THR_OFF_DELAY 75
 
 #define FRAME_CONFIG QUAD_FRAME
 /*

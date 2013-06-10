@@ -1933,13 +1933,15 @@ void update_throttle_mode(void)
 	}
 }
         break;
-// PAKU throttle off delay for STAB mode
+
+        // PAKU throttle off delay for STAB mode
         static int8_t thr_delay_counter;
+    
     case THROTTLE_MANUAL_TILT_COMPENSATED:
         // manual throttle but with angle boost
         if (g.rc_3.control_in <= 0) {
         	thr_delay_counter++;
-        	if (thr_delay_counter>=100)     //delay for about 2sec.       		        		
+        	if (thr_delay_counter>=STAB_THR_OFF_DELAY)     //delay for about STAB_THR_OFF_DELAY/50sec       		        		
         		set_throttle_out(0, false); // no need for angle boost with zero throttle
         }else{
         	thr_delay_counter=0;
