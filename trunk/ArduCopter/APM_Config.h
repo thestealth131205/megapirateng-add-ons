@@ -48,7 +48,7 @@
 #define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
-// PAKU warrning DISABLING sonar makes PL1 unusable for V2 board. And PWM mode for all boards.
+// PAKU warrning DISABLING sonar makes PPM on PL1 unusable for V2 board (as well as PWM mode for all boards).
 // if you use v2 board or PWM - you have to ENABLE sonar here - but you can disable it in MP - if not used
 // comment 1 line below to re-enable.
 #define CONFIG_SONAR DISABLED
@@ -64,7 +64,7 @@
 */
 
 // For BlackVortex, just set PIRATES_SENSOR_BOARD as PIRATES_BLACKVORTEX, GPS will be selected automatically
-#define GPS_PROTOCOL GPS_PROTOCOL_MTK19
+#define GPS_PROTOCOL GPS_PROTOCOL_NMEA
 /*
 	GPS_PROTOCOL_NONE 	without GPS
 	GPS_PROTOCOL_NMEA
@@ -76,14 +76,9 @@
 */
 	
 #define SERIAL0_BAUD			 115200	// Console port 
-#define SERIAL2_BAUD			 38400	// GPS port
+#define SERIAL2_BAUD			 115200	// GPS port
 #define SERIAL3_BAUD			 57600	// Telemetry (MAVLINK) port
 
-// New in 2.0.43, but unused in MegairateNG
-// MPNG: Piezo uses AN5 pin in ArduCopter, we uses AN5 for CLI switch
-///#define PIEZO	DISABLED
-///#define PIEZO_LOW_VOLTAGE	DISABLED
-///#define PIEZO_ARMING		DISABLED
 
 ///paku - define LEDs on FIRST firmware upload - could be changed later in Mission Planner
 // Join options by "+" sign
@@ -101,6 +96,9 @@
 	LEDS_GPS_ON_NAV
 */
 
+///PAKU 
+// motors off delay for STAB mode x/50sec ... give max about 100 = 2 sec
+#define STAB_THR_OFF_DELAY 75
 
 #define FRAME_CONFIG QUAD_FRAME
 /*
