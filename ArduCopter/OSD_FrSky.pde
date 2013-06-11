@@ -34,6 +34,18 @@
 // "Voltage (Ampere) sensor"
 // - the voltage and current will be shown correctly in FrSky/Open9x in 0.2V steps
 // ****************************************************************
+// 11.06.2013 by paku
+// RPM field used for heading data
+// Two sources to choose from Compass or GPS (review send_RPM() function)
+// Compass           - take care for compass heading calculations as it takes a lot of the CPU resources
+//                   - no declination added so you see raw compass data including all errors !!
+// GPS (default)     - is much faster but not working on stable copter.
+//                   - better solution as a last source of the heading data on compass failure.
+// LCD Display configuration WARNING:
+// The value sent are the impulses/second for configured propeller (RPM display is used) 
+// For better accuracy we assume our propeller has 60 blades !!!
+// (set your blades count to 60 on the LCD config page.).
+
 
 #if OSD_PROTOCOL == OSD_PROTOCOL_FRSKY
 
@@ -58,8 +70,6 @@ static uint8_t LockMe = 0x00;
 #define Protocol_Header   0x5E
 #define Protocol_Tail     0x5E
 
-// Data Ids  (bp = before point; af = after point)
-// Official data IDs
 // Data Ids  (bp = before point; af = after point)
 // Official data IDs
 #define ID_GPS_altidute_bp    0x01
@@ -113,12 +123,10 @@ void telemetry_frsky()
 		if ((cycleCounter % 4) == 0)
 		{
 			// Datas sent every 4*Time_telemetry_send
-			send_Time();
 			send_Altitude();
-			//send_Course();
-			send_GPS_speed();
-			send_Fuel_level();
+			send_GPS_speed();		
 			sendDataTail();
+			
 
 		}
 		if ((cycleCounter % 8) == 0)
@@ -127,7 +135,9 @@ void telemetry_frsky()
 			//send_GPS_altitude();
 			//send_Voltage_ampere();
 			send_GPS_position();
-			send_Temperature2();  // num of Sats
+			send_RPM();           // heading data			
+			send_Fuel_level();			
+			send_Time();			
 			sendDataTail();
 		}
 
@@ -135,6 +145,7 @@ void telemetry_frsky()
 		{
 			// Datas sent every 25*Time_telemetry_send
 			send_Temperature1();
+			send_Temperature2();  // num of Sats		
 			sendDataTail();
 			cycleCounter = 0;
 		}
@@ -265,10 +276,20 @@ void send_Altitude(void)
 }
 
 // RPM
+///PAKU RPM field used for heading data
 void send_RPM(void)
 {
+	uint16_t heading;
+	
+	//Compass source - very CPU consuming !!
+	//heading = wrap_360(ToDeg(compass.calculate_heading(ahrs.get_dcm_matrix())) * 100) /100;
+	
+	//GPS source
+	heading = g_gps->ground_course/100;
+
+
 	sendDataHead(ID_RPM);
-	write_FrSky16(0);
+	write_FrSky16(heading);
 }
 
 // Fuel level 
@@ -358,20 +379,24 @@ void send_Time(void)
 	write_FrSky16(uint16_t(seconds_since_start % 60));
 }
 
+
 // Course
-/*   void send_Course(void)
+// heading sent using RPM field !!!
+/*
+void send_Course(void)
  {
  uint16_t Datas_Course_bp;
  uint16_t Datas_Course_ap;
 
- Datas_Course_bp = heading;
- Datas_Course_ap = 0;
+ Datas_Course_bp = 123;
+ Datas_Course_ap = 45;
 
  sendDataHead(ID_Course_bp);
  write_FrSky16(Datas_Course_bp);
  sendDataHead(ID_Course_ap);
  write_FrSky16(Datas_Course_ap);
- }*/
+ }
+*/
 
 // ACC
 /*   void send_Accel(void)
