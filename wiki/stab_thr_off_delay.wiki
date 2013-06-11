@@ -8,7 +8,7 @@ This mod delays sending OFF command to the motors by a given time, so if you mov
 
 Delay defined in APM_Config.h (default 75/50sec )
 
-'#define STAB_THR_OFF_DELAY 75'
+{{{#define STAB_THR_OFF_DELAY 75}}}
 
 http://code.google.com/p/megapirateng-add-ons/source/browse/trunk/ArduCopter/APM_Config.h?spec=svn104&r=104#99
 
