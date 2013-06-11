@@ -12,7 +12,7 @@ public:
     }
     virtual void        init(enum GPS_Engine_Setting nav_setting = GPS_ENGINE_NONE) {
     };
-    virtual bool read(void) {
+    virtual bool        read(void) {
         return false;
     };
 };
