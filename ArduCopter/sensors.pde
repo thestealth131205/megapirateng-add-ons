@@ -73,7 +73,7 @@ static void init_compass()
 {
 	compass.set_orientation(MAG_ORIENTATION);						// set compass's orientation on aircraft
 	#if CONFIG_APM_HARDWARE == APM_HARDWARE_PIRATES
-		((AP_Compass_HMC5843_Pirates*) &compass)->init(&timer_scheduler);
+		((AP_Compass_HMC5843_Pirates*) &compass)->init(&timer_scheduler);		
 	#else
 	if (!compass.init() || !compass.read()) {
         // make sure we don't pass a broken compass to DCM

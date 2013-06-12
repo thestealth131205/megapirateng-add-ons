@@ -1,1 +1,1 @@
-#define THISFIRMWARE "MegaPirateNG Add-Ons V2.9.1 R7.111 2013/06/11"
+#define THISFIRMWARE "MegaPirateNG Add-Ons V2.9.1b final R8.114 2013/06/12"
