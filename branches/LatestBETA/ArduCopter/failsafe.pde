@@ -31,14 +31,14 @@ void failsafe_disable()
 //
 //  failsafe_check - this function is called from the core timer interrupt at 1kHz.
 //
-bool failsafe_check(uint32_t tnow)
+void failsafe_check(uint32_t tnow)
 {
     if (mainLoop_count != failsafe_last_mainLoop_count) {
         // the main loop is running, all is OK
         failsafe_last_mainLoop_count = mainLoop_count;
         failsafe_last_timestamp = tnow;
         in_failsafe = false;
-        return true;
+        return;
     }
 
     if (failsafe_enabled && tnow - failsafe_last_timestamp > 2000000) {
@@ -58,5 +58,4 @@ bool failsafe_check(uint32_t tnow)
             Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE, ERROR_CODE_FAILSAFE_WATCHDOG);
         }
     }
-	return true;
 }

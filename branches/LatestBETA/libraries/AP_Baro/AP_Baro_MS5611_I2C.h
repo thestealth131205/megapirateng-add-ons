@@ -24,7 +24,7 @@ class AP_Baro_MS5611_I2C : public AP_Baro
   private:
   /* Asynchronous handler functions: */
   void init_hardware(); 
-  static bool _update(uint32_t );
+  static void _update(uint32_t );
   /* Asynchronous state: */
   static volatile bool _updated;
   static volatile uint8_t _d1_count;

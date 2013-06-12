@@ -177,10 +177,10 @@ uint32_t AP_InertialSensor_Pirates::get_delta_time_micros()
 
 static volatile uint32_t _ins_timer = 0;
 
-bool AP_InertialSensor_Pirates::read(uint32_t tnow)
+void AP_InertialSensor_Pirates::read(uint32_t tnow)
 {
 	if (tnow - _ins_timer < _micros_per_sample) {
-		return false; // wait for more than 5ms
+		return; // wait for more than 5ms
 	}
 	
 	_ins_timer = tnow;
@@ -190,7 +190,7 @@ bool AP_InertialSensor_Pirates::read(uint32_t tnow)
 
 	if (I2c.read(ITG3200_ADDRESS, 0X1B, 8, rawADC_ITG3200) != 0) {
 		healthy = false;
-		return true;
+		return;
 	}
   
 	_sum[3] += ((rawADC_ITG3200[0]<<8) | rawADC_ITG3200[1]); // temperature
@@ -200,7 +200,7 @@ bool AP_InertialSensor_Pirates::read(uint32_t tnow)
 
 	if (I2c.read(accel_addr, 0x02, 6, rawADC_BMA180) != 0) {
 		healthy = false;
-		return true;
+		return;
 	} 
 	  
 	_sum[4] += ((rawADC_BMA180[3]<<8) | (rawADC_BMA180[2])) >> 2; //a pitch
@@ -212,7 +212,7 @@ bool AP_InertialSensor_Pirates::read(uint32_t tnow)
 	  // rollover - v unlikely
 	  memset((void*)_sum, 0, sizeof(_sum));
   }
- 	return true;
+ 	return;
 }
 
 void AP_InertialSensor_Pirates::hardware_init(Sample_rate sample_rate)
