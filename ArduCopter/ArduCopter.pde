@@ -993,8 +993,6 @@ void loop()
 		// ---------------------
 		fast_loop();
 
-//		Log_Write_Data(DATA_FAST_LOOP, (int32_t)(micros() - fast_loopTimer));
-
 		// run the 50hz loop 1/2 the time
 		ap_system.run_50hz_loop = !ap_system.run_50hz_loop;
 		
@@ -1022,8 +1020,6 @@ void loop()
 			// --------------------------------------------------
 			fifty_hz_loop();
 
-//			Log_Write_Data(DATA_MED_LOOP, (int32_t)(micros() - fiftyhz_loopTimer));
-
 			counter_one_herz++;
 	
 			// trgger our 1 hz loop
@@ -1047,7 +1043,7 @@ void loop()
 		#ifdef DESKTOP_BUILD
 			usleep(1000);
 		#endif
-/*		if (timer - fast_loopTimer < 9000) {
+		if (timer - fast_loopTimer < 9000) {
 			// we have some spare cycles available
 			// less than 10ms has passed. We have at least one millisecond
 			// of free time. The most useful thing to do with that time is
@@ -1057,7 +1053,7 @@ void loop()
 			if (g.compass_enabled) {
 				compass.accumulate();
 			}
-		}*/
+		}
 	}
 
 }
