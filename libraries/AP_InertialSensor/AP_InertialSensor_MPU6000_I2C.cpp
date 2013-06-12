@@ -273,13 +273,11 @@ uint16_t AP_InertialSensor_MPU6000_I2C::num_samples_available()
  */
 static volatile uint32_t _ins_timer = 0;
 
-bool AP_InertialSensor_MPU6000_I2C::read(uint32_t tnow)
+void AP_InertialSensor_MPU6000_I2C::read(uint32_t tnow)
 {
 	if (tnow - _ins_timer < _micros_per_sample_pre) {
-		return false; // wait for more than 4ms
+		return; // wait for more than 4ms
 	}
-
-	uint8_t _status = 0;
 	
 	_ins_timer = tnow;
 
@@ -287,7 +285,7 @@ bool AP_InertialSensor_MPU6000_I2C::read(uint32_t tnow)
 	uint8_t rawMPU[14];
 	
 	if (I2c.read(mpu_addr, MPUREG_ACCEL_XOUT_H, 14, rawMPU) != 0) {
-		return true;
+		return;
 	}
 	
 	_sum[0] += (((int16_t)rawMPU[0])<<8) | rawMPU[1]; // Accel X
@@ -303,7 +301,7 @@ bool AP_InertialSensor_MPU6000_I2C::read(uint32_t tnow)
 		// rollover - v unlikely
 		memset((void*)_sum, 0, sizeof(_sum));
 	}
-	return true;
+	return;
 }
 
 void AP_InertialSensor_MPU6000_I2C::hardware_init(Sample_rate sample_rate)

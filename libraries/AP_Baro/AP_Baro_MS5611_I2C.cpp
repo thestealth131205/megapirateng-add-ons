@@ -146,10 +146,10 @@ uint32_t AP_Baro_MS5611_I2C::_i2c_read_adc()
 // Read the sensor. This is a state machine
 // We read one time Temperature (state=1) and Pressure (states!=1)
 // temperature does not change so quickly...
-bool AP_Baro_MS5611_I2C::_update(uint32_t tnow)
+void AP_Baro_MS5611_I2C::_update(uint32_t tnow)
 {
     if (_sync_access || (tnow - _timer < 9900)) {
-	    return false; // wait for more than 7.4-9.04ms (Page 2 - MS5611-01BA03.pdf)
+	    return; // wait for more than 7.4-9.04ms (Page 2 - MS5611-01BA03.pdf)
     }
 
     _timer = tnow;
@@ -167,7 +167,7 @@ bool AP_Baro_MS5611_I2C::_update(uint32_t tnow)
 	    _state++;
 			if (I2c.write(MS5611_ADDRESS, CMD_CONVERT_D1_OSR4096) != 0) {
 				healthy = false;
-				return true;
+				return;
 			}
     } else {
 	    _s_D1 += _i2c_read_adc();
@@ -184,17 +184,17 @@ bool AP_Baro_MS5611_I2C::_update(uint32_t tnow)
       if (_state == 5) {
 				if (I2c.write(MS5611_ADDRESS, CMD_CONVERT_D2_OSR4096) != 0) {
 					healthy = false;
-					return true ;
+					return;
 				}
 				_state = 0;
       } else {
 			if (I2c.write(MS5611_ADDRESS, CMD_CONVERT_D1_OSR4096) != 0) {
 				healthy = false;
-				return true;
+				return;
 			}
       }
     }
-	return true;
+	return;
 }
 
 uint8_t AP_Baro_MS5611_I2C::read()

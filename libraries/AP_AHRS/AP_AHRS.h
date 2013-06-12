@@ -7,7 +7,7 @@
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
-*/
+ */
 
 #include <AP_Math.h>
 #include <inttypes.h>
@@ -18,33 +18,33 @@
 #include <AP_Baro.h>
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
+ #include "Arduino.h"
 #else
-	#include "WProgram.h"
+ #include "WProgram.h"
 #endif
 
 class AP_AHRS
 {
 public:
-	// Constructor
+    // Constructor
     AP_AHRS(AP_InertialSensor *ins, GPS *&gps) :
         _ins(ins),
-		_gps(gps),
-		_barometer(NULL)
-	{
-		// base the ki values by the sensors maximum drift
-		// rate. The APM2 has gyros which are much less drift
-		// prone than the APM1, so we should have a lower ki,
-		// which will make us less prone to increasing omegaI
-		// incorrectly due to sensor noise
+        _gps(gps),
+        _barometer(NULL)
+    {
+        // base the ki values by the sensors maximum drift
+        // rate. The APM2 has gyros which are much less drift
+        // prone than the APM1, so we should have a lower ki,
+        // which will make us less prone to increasing omegaI
+        // incorrectly due to sensor noise
         _gyro_drift_limit = ins->get_gyro_drift_rate();
-	}
+    }
 
-	// empty init
+    // empty init
     virtual void init( AP_PeriodicProcess * scheduler = NULL ) {
     };
 
-	// Accessors
+    // Accessors
     void            set_fly_forward(bool b) {
         _fly_forward = b;
     }
@@ -65,49 +65,49 @@ public:
     // accelerometer values in the earth frame in m/s/s
     Vector3f        get_accel_ef(void) { return _accel_ef; }
 
-	// Methods
-	virtual void update(void) = 0;
+    // Methods
+    virtual void update(void) = 0;
 
-	// Euler angles (radians)
-	float		roll;
-	float		pitch;
-	float		yaw;
+    // Euler angles (radians)
+    float roll;
+    float pitch;
+    float yaw;
 
-	// integer Euler angles (Degrees * 100)
-	int32_t		roll_sensor;
-	int32_t		pitch_sensor;
-	int32_t		yaw_sensor;
+    // integer Euler angles (Degrees * 100)
+    int32_t roll_sensor;
+    int32_t pitch_sensor;
+    int32_t yaw_sensor;
 
     // roll and pitch rates in earth frame, in radians/s
     float get_pitch_rate_earth(void);
     float get_roll_rate_earth(void);
 
-	// return a smoothed and corrected gyro vector
-	virtual Vector3f get_gyro(void) = 0;
+    // return a smoothed and corrected gyro vector
+    virtual Vector3f get_gyro(void) = 0;
 
-	// return the current estimate of the gyro drift
-	virtual Vector3f get_gyro_drift(void) = 0;
+    // return the current estimate of the gyro drift
+    virtual Vector3f get_gyro_drift(void) = 0;
 
-	// reset the current attitude, used on new IMU calibration
-	virtual void reset(bool recover_eulers=false) = 0;
+    // reset the current attitude, used on new IMU calibration
+    virtual void reset(bool recover_eulers=false) = 0;
 
-	// how often our attitude representation has gone out of range
-	uint8_t renorm_range_count;
+    // how often our attitude representation has gone out of range
+    uint8_t renorm_range_count;
 
-	// how often our attitude representation has blown up completely
-	uint8_t renorm_blowup_count;
+    // how often our attitude representation has blown up completely
+    uint8_t renorm_blowup_count;
 
-	// return the average size of the roll/pitch error estimate
-	// since last call
-	virtual float get_error_rp(void) = 0;
+    // return the average size of the roll/pitch error estimate
+    // since last call
+    virtual float get_error_rp(void) = 0;
 
-	// return the average size of the yaw error estimate
-	// since last call
-	virtual float get_error_yaw(void) = 0;
+    // return the average size of the yaw error estimate
+    // since last call
+    virtual float get_error_yaw(void) = 0;
 
-	// return a DCM rotation matrix representing our current
-	// attitude
-	virtual Matrix3f get_dcm_matrix(void) = 0;
+    // return a DCM rotation matrix representing our current
+    // attitude
+    virtual Matrix3f get_dcm_matrix(void) = 0;
 
     // get our current position, either from GPS or via
     // dead-reckoning. Return true if a position is available,
@@ -166,19 +166,19 @@ protected:
     bool _have_initial_yaw;
 
     // pointer to compass object, if available
-	Compass 	* _compass;
+    Compass         * _compass;
 
     // pointer to airspeed object, if available
     AP_Airspeed     * _airspeed;
 
-	// time in microseconds of last compass update
-	uint32_t        _compass_last_update;
+    // time in microseconds of last compass update
+    uint32_t _compass_last_update;
 
-	// note: we use ref-to-pointer here so that our caller can change the GPS without our noticing
-	//       IMU under us without our noticing.
+    // note: we use ref-to-pointer here so that our caller can change the GPS without our noticing
+    //       IMU under us without our noticing.
     AP_InertialSensor   *_ins;
-	GPS 		*&_gps;
-	AP_Baro		*_barometer;
+    GPS                 *&_gps;
+    AP_Baro             *_barometer;
 
     // a vector to capture the difference between the controller and body frames
     AP_Vector3f         _trim;
@@ -187,19 +187,19 @@ protected:
     // convergence, used when disarmed for ArduCopter
     bool _fast_ground_gains;
 
-	// true if we can assume the aircraft will be flying forward
-	// on its X axis
-	bool		_fly_forward;
+    // true if we can assume the aircraft will be flying forward
+    // on its X axis
+    bool _fly_forward;
 
-	// the limit of the gyro drift claimed by the sensors, in
-	// radians/s/s
-	float           _gyro_drift_limit;
+    // the limit of the gyro drift claimed by the sensors, in
+    // radians/s/s
+    float _gyro_drift_limit;
 
     // accelerometer values in the earth frame in m/s/s
     Vector3f        _accel_ef;
 
-	// acceleration due to gravity in m/s/s
-	static const float _gravity = 9.80665;
+    // acceleration due to gravity in m/s/s
+    static const float _gravity = 9.80665;
 
 };
 

@@ -6,12 +6,12 @@
 #include <FastSerial.h>
 #include <AP_Common.h>
 
-#include "AP_GPS.h"		// includes AP_GPS_Auto.h
+#include "AP_GPS.h"             // includes AP_GPS_Auto.h
 
 static const uint32_t baudrates[] PROGMEM = {38400U, 57600U, 9600U, 4800U};
 
-const prog_char	AP_GPS_Auto::_mtk_set_binary[]   PROGMEM = MTK_SET_BINARY;
-const prog_char	AP_GPS_Auto::_sirf_set_binary[]  PROGMEM = SIRF_SET_BINARY;
+const prog_char AP_GPS_Auto::_mtk_set_binary[]   PROGMEM = MTK_SET_BINARY;
+const prog_char AP_GPS_Auto::_sirf_set_binary[]  PROGMEM = SIRF_SET_BINARY;
 
 
 AP_GPS_Auto::AP_GPS_Auto(FastSerial *s, GPS **gps)  :
@@ -27,7 +27,7 @@ void
 AP_GPS_Auto::init(enum GPS_Engine_Setting nav_setting)
 {
     idleTimeout = 1200;
-	_nav_setting = nav_setting;
+    _nav_setting = nav_setting;
 }
 
 
@@ -41,7 +41,7 @@ AP_GPS_Auto::read(void)
 {
 	static uint32_t last_baud_change_ms;
 	static uint8_t last_baud;
-    GPS		*gps;
+	GPS *gps;
 	uint32_t now = millis();
 
 	if (now - last_baud_change_ms > 1200) {
@@ -61,13 +61,13 @@ AP_GPS_Auto::read(void)
 
 	_update_progstr();
 
-        if (NULL != (gps = _detect())) {
+	if (NULL != (gps = _detect())) {
 		// configure the detected GPS
-            gps->init(_nav_setting);
-                    Serial.println_P(PSTR("OK"));
-                    *_gps = gps;
-                    return true;
-                }
+		gps->init(_nav_setting);
+		Serial.println_P(PSTR("OK"));
+		*_gps = gps;
+		return true;
+    }
     return false;
 }
 
@@ -81,37 +81,41 @@ AP_GPS_Auto::_detect(void)
 
 	if (detect_started_ms == 0 && _port->available() > 0) {
 		detect_started_ms = millis();
-            }
+	}
 
 	while (_port->available() > 0) {
 		uint8_t data = _port->read();
 		if (AP_GPS_UBLOX::_detect(data)) {
 			Serial.print_P(PSTR(" ublox "));
 			return new AP_GPS_UBLOX(_port);
-			}
+		}
 		if (AP_GPS_MTK19::_detect(data)) {
 			Serial.print_P(PSTR(" MTK19 "));
 			return new AP_GPS_MTK19(_port);
+		}
+		if (AP_GPS_MTK::_detect(data)) {
+			Serial.print_P(PSTR(" MTK "));
+			return new AP_GPS_MTK(_port);
 		}
 #if !defined( __AVR_ATmega1280__ )
 		// save a bit of code space on a 1280
 		if (AP_GPS_SIRF::_detect(data)) {
 			Serial.print_P(PSTR(" SIRF "));
 			return new AP_GPS_SIRF(_port);
-        }
+		}
 		if (millis() - detect_started_ms > 5000) {
 			// prevent false detection of NMEA mode in
 			// a MTK or UBLOX which has booted in NMEA mode
 			if (AP_GPS_NMEA::_detect(data)) {
 				Serial.print_P(PSTR(" NMEA "));
 				return new AP_GPS_NMEA(_port);
-        }
-        }
+			}
+		}
 #endif
-        }
+	}
 
 	return NULL;
-        }
+}
 
 
 

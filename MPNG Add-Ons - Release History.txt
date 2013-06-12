@@ -2,7 +2,7 @@
 Release History for MPNG-Add-Ons
 --------------------------------------------------
 2013-06-11 	MegaPirateNG Add-Ons V2.9.1 R7.112
-	OSD_FrSky: Compass/GPS heading added to the LCD Display (RPM field)
+	OSD_FrSky: Compass/GPs heading added to the LCD Display (RPM field)
 
 2013-06-10 	MegaPirateNG Add-Ons V2.9.1 R7.102 
 	Delayed motors off for STAB mode (so you will not stop motors in the air)
