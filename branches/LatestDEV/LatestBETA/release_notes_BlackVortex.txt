@@ -1,0 +1,15 @@
+*** Configuring software for using on BlackVortex boards ***
+
+1. Copy boards.txt into Arduino IDE folder: arduino-0022/hardware/arduino/ 
+	If you use Arduino 1.0, copy boards_for_arduino_1.0.txt to arduino-1.0/hardware/arduino/ and rename it to boards.txt
+2. Choose your frame type (x,+,v) and set PIRATES_SENSOR_BOARD as PIRATES_BLACKVORTEX in Arducopter/APM_Config.h
+
+GPS Protocol will be selected automatically
+
+*** Настройка кода для платы Black Vortex ***
+
+1. Cкопируйте boards.txt в arduino-0022/hardware/arduino/ 
+	Если вы используете Arduino 1.0, скопируйте boards_for_arduino_1.0.txt в папку arduino-1.0/hardware/arduino/ и переименуйте его в boards.txt
+2. Задайте тип своей рамы и ориентацию (x, +, v) а так же выставьте тип сенсоров как PIRATES_SENSOR_BOARD = PIRATES_BLACKVORTEX.
+
+Протокол GPS будет выбран автоматически
