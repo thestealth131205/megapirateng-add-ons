@@ -301,6 +301,8 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
 	
+	//Gimbal ports init
+
 	if (bv_mode) {
 		// BlackVortex Mapping
 		pinMode(32,OUTPUT);	// cam roll PC5 (Digital Pin 32)
@@ -311,9 +313,10 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	}
 
 	//general servo
-	TCCR5A = 0; //standard mode with overflow at A and OC B and C interrupts
-	TCCR5B = (1<<CS11); //Prescaler set to 8, resolution of 0.5us
-	OCR5B = 3000; // Init OCR registers to nil output signal
+	TCCR5A = 0; 		//standard mode with overflow at A and OC B and C interrupts
+	TCCR5B = (1<<CS51); //Prescaler set to 8, resolution of 0.5us
+	OCR5B = 3000; 		// Init OCR registers to nil output signal
+						//used for Gimbal ISR fires at 3000 (???)
 
 	//motors
 	digitalWrite(11,HIGH);
