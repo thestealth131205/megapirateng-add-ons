@@ -319,11 +319,13 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	digitalWrite(11,HIGH);
 	pinMode(11,OUTPUT);
 	digitalWrite(11,HIGH);
+
 	digitalWrite(12,HIGH);
 	pinMode(12,OUTPUT);
 	digitalWrite(12,HIGH);
-	TCCR1A = (1<<WGM31); 
-	TCCR1B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
+
+	TCCR1A = (1<<WGM31);  //mode 14 FAST PWM (1110)
+	TCCR1B = (1<<WGM33)|(1<<WGM32)|(1<<CS31); // Clock clk/8 (010)
 	OCR1A = 0xFFFF; 
 	OCR1B = 0xFFFF; 
 	ICR1 = 40000; //50hz freq...Datasheet says  (system_freq/prescaler)/target frequency. So (16000000hz/8)/50hz=40000,
@@ -366,7 +368,8 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	OCR4C = 0xFFFF; 
 	ICR4 = 40000; //50hz freq
 
-	DDRK = 0;  // defined PORTK as a digital port ([A8-A15] are consired as digital PINs and not analogical)
+	DDRK = 0;  // defined PORTK as a digital port ([A8-A15] are considered as digital PINs - not analog)
+
 	switch (use_ppm)
 	{
 		case SERIAL_PPM_DISABLED:
@@ -382,6 +385,7 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 					PCICR |= (1 << PCIE2);    // PCINT2 Interrupt enable for masked PINs A8
 					break;
 	}
+
 	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
 }
 
