@@ -981,6 +981,12 @@ void loop()
 		#if DEBUG_FAST_LOOP == ENABLED
 			Log_Write_Data(DATA_FAST_LOOP, (int32_t)(timer - fast_loopTimer));
 		#endif
+			
+		//PAKU debug load (ins samples collected) to the cli
+		//if (num_samples != 2) {
+		//       cliSerial->printf("\nnum_samples=%u\n", (unsigned)num_samples);
+		//}			
+			
 		
 		// check loop time
 		perf_info_check_loop_time(timer - fast_loopTimer);
