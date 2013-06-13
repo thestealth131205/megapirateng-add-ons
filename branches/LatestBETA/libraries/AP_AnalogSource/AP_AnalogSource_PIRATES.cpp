@@ -16,6 +16,8 @@ volatile char sonar_meas=0;
 volatile unsigned int sonar_data=0; // Variables for calculating length of Echo impulse
 volatile char sonar_skip=0;
 
+#if CONFIG_SONAR == ENABLED
+
 // Sonar read interrupts
 ISR(TIMER5_COMPA_vect) // This event occurs when counter = 65510
 {
@@ -46,6 +48,9 @@ ISR(PCINT0_vect)
 		}
 	}
 }
+
+#endif
+
 void AP_AnalogSource_PIRATES::init(void)
 {
 	// Sonar INIT
@@ -61,7 +66,7 @@ void AP_AnalogSource_PIRATES::init(void)
 	OCR5A = 65510; // Set overflow value, It give us 12.5us to generate Trigger signal for sonar 
 	TIMSK5 |= (1 << OCIE5A) | (1 << TOIE5); // ints: overflow, compareA
 	PCMSK0 |= (1 << PCINT4); // Enable interrup o sonar ECHO pin: B4 - D10
-	PCICR |= (1 << PCIE0); // PCINT0 Interrupt enable for PORTB
+	PCICR |= (1 << PCIE0); // PCINT0 Interrupt enable for PORTB, ISR(PCINT0_vect)
 }
 
 float AP_AnalogSource_PIRATES::read(void)

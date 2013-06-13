@@ -359,8 +359,10 @@ GCS_MAVLINK	gcs3;
 // SONAR selection
 ////////////////////////////////////////////////////////////////////////////////
 //
-ModeFilterInt16_Size3 sonar_mode_filter(1);
 #if CONFIG_SONAR == ENABLED
+	
+	ModeFilterInt16_Size3 sonar_mode_filter(1);
+
 	#if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC
 		AP_AnalogSource_ADC sonar_analog_source( &adc, CONFIG_SONAR_SOURCE_ADC_CHANNEL, 0.25);
 	#elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_PIRATES

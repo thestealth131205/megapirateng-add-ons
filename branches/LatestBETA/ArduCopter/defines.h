@@ -483,7 +483,6 @@ enum gcs_severity {
 
 //#define SERIAL_PPM_DISABLED 0
 //#define SERIAL_PPM_ENABLED  1
-//#define SERIAL_PPM_ENABLED_PL1 2
 
 // Error message sub systems and error codes
 #define ERROR_SUBSYSTEM_MAIN                1
