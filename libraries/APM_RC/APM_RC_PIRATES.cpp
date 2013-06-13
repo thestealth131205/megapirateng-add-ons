@@ -52,11 +52,6 @@
 #endif
 
 
-// PAKU commented out for better Eclipse view :)
-//#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-//# error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
-//#else
-
 // Variable definition for Input Capture interrupt
 static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
 static bool bv_mode;
@@ -233,7 +228,7 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 
 	curr_time = TCNT5;         // from sonar
 	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
-	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
+	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates which pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
 	if (mask != 0) 
@@ -347,12 +342,15 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	digitalWrite(2,HIGH);
 	pinMode(2,OUTPUT);
 	digitalWrite(2,HIGH);
+
 	digitalWrite(3,HIGH);
 	pinMode(3,OUTPUT);
 	digitalWrite(3,HIGH);
+
 	digitalWrite(5,HIGH);
 	pinMode(5,OUTPUT);
 	digitalWrite(5,HIGH);
+
 	TCCR3A = (1<<WGM31);
 	TCCR3B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
 	OCR3A = 0xFFFF; 
@@ -363,12 +361,15 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	digitalWrite(6,HIGH);
 	pinMode(6,OUTPUT);
 	digitalWrite(6,HIGH);
+
 	digitalWrite(7,HIGH);
 	pinMode(7,OUTPUT);
 	digitalWrite(7,HIGH);
+
 	digitalWrite(8,HIGH);
 	pinMode(8,OUTPUT);
 	digitalWrite(8,HIGH);
+
 	TCCR4A = (1<<WGM31);
 	TCCR4B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
 	OCR4A = 0xFFFF; 
@@ -615,5 +616,3 @@ uint32_t APM_RC_PIRATES::get_last_update() {
     return _last_update;
 }; 
 
-/// PAKU endif
-///#endif // defined(ATMega1280)
