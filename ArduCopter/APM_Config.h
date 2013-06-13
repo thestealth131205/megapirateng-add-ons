@@ -18,13 +18,14 @@
 // RC configuration
 
 // PPM_SUM(CPPM) Signal processing
-// WARRING: Sonar is full disabled by default now.
-// But for PPM on PL1 (v2) or PWM Rx mode you have to enable sonar - few lines below.
+// WARRING: Sonar is fully disabled by default now.
+// But for PWM std.Rx mode (SERIAL_PPM_DISABLED)
+// you have to enable sonar - few lines below.
+
 #define SERIAL_PPM SERIAL_PPM_ENABLED
 /*
-	SERIAL_PPM_DISABLED
-	SERIAL_PPM_ENABLED				// For all boards, PPM_SUM pin is A8
-	SERIAL_PPM_ENABLED_PL1		// Use for CRIUS AIOP Pro v2,
+	SERIAL_PPM_DISABLED             // Std.Rx using more then ONE cable to connect
+	SERIAL_PPM_ENABLED				// For all boards, PPM_SUM pin is A8 (no PL1 support for AIO v2)
 */
 
 #define TX_CHANNEL_SET	TX_JR
@@ -48,10 +49,13 @@
 #define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
-// PAKU warrning DISABLING sonar makes PPM on PL1 unusable for V2 board (as well as PWM mode for all boards).
-// if you use v2 board or PWM - you have to ENABLE sonar here - but you can disable it in MP - if not used
-// comment 1 line below to re-enable.
-#define CONFIG_SONAR DISABLED
+// PAKU
+// WARRING: Sonar is fully disabled by default now.
+// But for PWM std.Rx mode (SERIAL_PPM_DISABLED)
+// you have to enable sonar - few lines below.
+// if PWM - you HAVE TO ENABLE sonar here - but you can disable it in MP - if not used
+// comment out 1 line below to re-enable.
+#define CONFIG_SONAR DISABLED  // << comment out to use Std RX
 #define MAX_SONAR_RANGE 400
 
 // This OSD works on the Serial1 port

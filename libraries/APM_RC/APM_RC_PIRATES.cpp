@@ -121,21 +121,10 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 	static bool GotFirstSynch;
 
 
-	switch (use_ppm)
-	{
-		case SERIAL_PPM_ENABLED:
-
-			curr_time = TCNT5;         // 0.5us resolution
-			pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
-			mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
-			PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
-			break;
-		case SERIAL_PPM_ENABLED_PL1:
-			curr_time = ICR5; 		  ///PAKU that's the only diff for V2 and V1 versions :)
-			break;
-		default : curr_time = 0;      // in any case - do nothing
-			break;
-	}
+	curr_time = TCNT5;         // 0.5us resolution
+	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
+	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
+	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
 
 	// Rising edge detection
@@ -226,8 +215,8 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	static uint8_t PCintLast;
 	static uint16_t edgeTime[NUM_CHANNELS];
 
-	curr_time = TCNT5;         // from sonar
-	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
+	curr_time = TCNT5;        // from sonar
+	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates which pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
@@ -384,21 +373,13 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 					FireISRRoutine = _pwm_mode_isr;
 					PORTK = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); //enable internal pull ups on the PINs of PORTK
 					PCMSK2 = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); // enable interrupts on A8-A15 pins;
-					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
+					PCICR |= (1 << PCIE2);    // PCINT2 Interrupt enable for masked PINs A8-1A15
 					break;
 		case SERIAL_PPM_ENABLED:  
 					FireISRRoutine = _ppmsum_mode_isr;
 					PORTK = (1<<PCINT16); //enable internal pull up on the SERIAL SUM pin A8
 					PCMSK2 |= (1 << PCINT16); // Enable int for pin A8(PCINT16)
-					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
-					break;
-		case SERIAL_PPM_ENABLED_PL1:
-					FireISRRoutine = 0;
-					pinMode(48, INPUT); // ICP5 pin (PL1) (PPM input) CRIUS v2
-					isr_reg->register_signal(ISR_REGISTRY_TIMER5_CAPT, _ppmsum_mode_isr );
-					TCCR5B |= (1<<ICES5); // Input capture on rising edge 
-					TIMSK5 |= (1<<ICIE5); // Enable Input Capture interrupt. Timer interrupt mask  
-					PCMSK2 = 0;	// Disable INT for pin A8-A15
+					PCICR |= (1 << PCIE2);    // PCINT2 Interrupt enable for masked PINs A8
 					break;
 	}
 	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
