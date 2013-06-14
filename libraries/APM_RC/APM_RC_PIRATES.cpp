@@ -71,7 +71,7 @@ static volatile bool valid_frame = false;
 static volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
 static volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
 
-static volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+static uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
 
 //************************************************************************************
 // ISR routines
