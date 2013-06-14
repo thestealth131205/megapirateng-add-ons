@@ -1064,6 +1064,13 @@ void loop()
 				compass.accumulate();
 			}
 		}*/
+		/*	//PAKU debug
+			if (perf_mon_counter >= 1000 ){
+				cliSerial->printf("\nLoopsNo: %u LongLoopsNo: %u MaxTime: %u\n", (unsigned) perf_info_get_num_loops(),(unsigned) perf_info_get_num_long_running(), (unsigned) perf_info_get_max_time());
+				perf_info_reset();
+				perf_mon_counter 		= 0;				
+			}
+		*/	
 	}
 
 }
