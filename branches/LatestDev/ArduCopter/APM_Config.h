@@ -46,10 +46,25 @@
 #define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
-// PAKU
+//### PAKU #########################################################################
+// Below there are two CPU stress optimization defines.
+// Leave Sonar and Gimbal DISABLED if you are not going to use it.
+//##################################################################################
 // WARNING: Sonar is fully disabled by default now.
 #define CONFIG_SONAR DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
 #define MAX_SONAR_RANGE 400
+
+// WARNING: Gimbal is fully disabled by default now.
+#define CONFIG_GIMBAL DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
+
 
 // This OSD works on the Serial1 port
 #define OSD_PROTOCOL OSD_PROTOCOL_FRSKY
