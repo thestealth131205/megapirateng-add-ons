@@ -337,7 +337,7 @@
 #endif
 
 #ifndef CONFIG_SONAR
-# define CONFIG_SONAR ENABLED
+# define CONFIG_SONAR DISABLE
 #endif
 
 #ifndef SONAR_ALT_HEALTH_MAX

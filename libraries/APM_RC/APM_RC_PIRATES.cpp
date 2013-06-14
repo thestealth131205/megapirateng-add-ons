@@ -71,6 +71,8 @@ static volatile bool valid_frame = false;
 static volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
 static volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
 
+static volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+
 //************************************************************************************
 // ISR routines
 //************************************************************************************
@@ -83,7 +85,8 @@ ISR(PCINT2_vect) {
 		FireISRRoutine();
 }
 
-static volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+#if CONFIG_GIMBAL == ENABLED
+
 // Software PWM generator (used for Gimbal)
 ISR(TIMER5_COMPB_vect)
 { // set the corresponding pin to 1
@@ -105,6 +108,7 @@ ISR(TIMER5_COMPB_vect)
 	}
 	if(OCRstate&1)OCR5B+=5000-OCRxx1[OCRstate>>1]; else OCR5B+=OCRxx1[OCRstate>>1];
 }
+#endif
 
 //************************************************************************************
 
@@ -208,7 +212,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 
 
 void APM_RC_PIRATES::_pwm_mode_isr(void)
-{ //this ISR is common to every receiver channel, it is call everytime a change state occurs on a digital pin [D2-D7]
+{ //this ISR is common to every receiver channel, it is called every time a state change occurs on a digital pin [D2-D7]
 	uint8_t mask;
 	uint8_t pin;
 	uint16_t curr_time,period_time;
@@ -300,23 +304,6 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	failsafeCnt = 0;
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
-	
-	//Gimbal ports init
-
-	if (bv_mode) {
-		// BlackVortex Mapping
-		pinMode(32,OUTPUT);	// cam roll PC5 (Digital Pin 32)
-		pinMode(33,OUTPUT);	// cam pitch PC4 (Digital Pin 33)
-	} else {
-		pinMode(44,OUTPUT);	// cam roll PL5 (Digital Pin 44)
-		pinMode(45,OUTPUT);	// cam pitch PL4 (Digital Pin 45)
-	}
-
-	//general servo
-	TCCR5A = 0; 		//standard mode with overflow at A and OC B and C interrupts
-	TCCR5B = (1<<CS51); //Prescaler set to 8, resolution of 0.5us
-	OCR5B = 3000; 		// Init OCR registers to nil output signal
-						//used for Gimbal ISR fires at 3000 (???)
 
 	//motors
 	digitalWrite(11,HIGH);
@@ -389,7 +376,27 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 					break;
 	}
 
-	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
+	//Gimbal and Radio PPM/PWM pulses timer
+	TCCR5A = 0; 		//standard mode with overflow at A and OC B and C interrupts
+	TCCR5B = (1<<CS51); //Prescaler set to 8, resolution of 0.5us
+
+#if CONFIG_GIMBAL == ENABLED
+
+	//Gimbal ports init
+	if (bv_mode) {
+		// BlackVortex Mapping
+		pinMode(32,OUTPUT);	// cam roll PC5 (Digital Pin 32)
+		pinMode(33,OUTPUT);	// cam pitch PC4 (Digital Pin 33)
+	} else {
+		pinMode(44,OUTPUT);	// cam roll PL5 (Digital Pin 44)
+		pinMode(45,OUTPUT);	// cam pitch PL4 (Digital Pin 45)
+	}
+
+	OCR5B = 3000; 				// Init OCR registers to nil output signal used for Gimbal - COMPB ISR fires at 3000
+	TIMSK5 |= (1 << OCIE5B); 	// Enable timer5 compareB interrupt, used in Gimbal PWM generator
+
+#endif
+
 }
 
 
