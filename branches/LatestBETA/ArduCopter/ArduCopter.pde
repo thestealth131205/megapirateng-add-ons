@@ -981,6 +981,12 @@ void loop()
 		#if DEBUG_FAST_LOOP == ENABLED
 			Log_Write_Data(DATA_FAST_LOOP, (int32_t)(timer - fast_loopTimer));
 		#endif
+			
+		//PAKU debug load (ins samples collected) to the cli
+		//if (num_samples != 2) {
+		//       cliSerial->printf("\nnum_samples=%u\n", (unsigned)num_samples);
+		//}			
+			
 		
 		// check loop time
 		perf_info_check_loop_time(timer - fast_loopTimer);
@@ -1058,6 +1064,13 @@ void loop()
 				compass.accumulate();
 			}
 		}*/
+		/*	//PAKU debug
+			if (perf_mon_counter >= 1000 ){
+				cliSerial->printf("\nLoopsNo: %u LongLoopsNo: %u MaxTime: %u\n", (unsigned) perf_info_get_num_loops(),(unsigned) perf_info_get_num_long_running(), (unsigned) perf_info_get_max_time());
+				perf_info_reset();
+				perf_mon_counter 		= 0;				
+			}
+		*/	
 	}
 
 }
