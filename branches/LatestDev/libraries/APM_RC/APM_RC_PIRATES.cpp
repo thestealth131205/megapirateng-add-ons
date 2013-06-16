@@ -62,7 +62,7 @@ static volatile uint32_t _last_update = 0;
 
 // failsafe counter
 static volatile uint8_t failsafeCnt = 0;
-static bool failsafe_enabled = false;
+static bool Rx_failsafe_enabled = false;
 static volatile bool valid_frame = false;
 
 // ******************
@@ -300,7 +300,7 @@ APM_RC_PIRATES::APM_RC_PIRATES(int _use_ppm, int _bv_mode, uint8_t *_pin_map)
 
 void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 {
-	failsafe_enabled = false;
+	Rx_failsafe_enabled = false;
 	failsafeCnt = 0;
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
@@ -483,7 +483,7 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 	result = rcPinValue[pinRcChannel[ch]];
 
 	#if FS_ENABLED == ENABLED	
-		if(failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
+		if(Rx_failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
 			if (ch == 2) {
 				result = FS_THROTTLE_VALUE;
 			} else if (ch<=3) {
@@ -510,13 +510,13 @@ uint8_t APM_RC_PIRATES::GetState(void)
 	valid_frame = false;				//reset validity on read, just no to read more then once.
 
 	#if FS_ENABLED == ENABLED
-		if(_tmp && !failsafe_enabled)
+		if(_tmp && !Rx_failsafe_enabled)
 		{
 			// Ok, we got first good packet, now we can enable failsafe and start to monitor outputs
-			failsafe_enabled = true;
+			Rx_failsafe_enabled = true;
 		}
 
-		if (failsafe_enabled) {
+		if (Rx_failsafe_enabled) {
 			if(failsafeCnt < FS_THRESHOLD) 
 				failsafeCnt++;
 			else 

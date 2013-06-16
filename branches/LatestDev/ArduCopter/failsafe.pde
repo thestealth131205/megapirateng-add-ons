@@ -9,6 +9,7 @@
 static bool failsafe_enabled = true;
 static uint16_t failsafe_last_mainLoop_count;
 static uint32_t failsafe_last_timestamp;
+static uint32_t failsafe_max_timestamp;
 static bool in_failsafe;
 
 //
@@ -36,6 +37,8 @@ void failsafe_check(uint32_t tnow)
     if (mainLoop_count != failsafe_last_mainLoop_count) {
         // the main loop is running, all is OK
         failsafe_last_mainLoop_count = mainLoop_count;
+        if(failsafe_max_timestamp < tnow -failsafe_last_timestamp)
+        	failsafe_max_timestamp = tnow -failsafe_last_timestamp;
         failsafe_last_timestamp = tnow;
         in_failsafe = false;
         return;
@@ -52,10 +55,17 @@ void failsafe_check(uint32_t tnow)
         // disarm motors every second
         failsafe_last_timestamp = tnow;
         if(motors.armed()) {
-            motors.armed(false);
+            ///PAKU motors.armed(false);
         	set_armed(true);
             motors.output();
             Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE, ERROR_CODE_FAILSAFE_WATCHDOG);
         }
     }
+}
+
+uint32_t get_failsafe_max_timestamp()
+{
+	uint32_t temp=failsafe_max_timestamp;
+	failsafe_max_timestamp=0;
+    return temp;
 }
