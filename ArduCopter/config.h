@@ -1267,4 +1267,6 @@
  # define INERTIAL_NAV_Z ENABLED
 #endif
 
+//#define CLI_DEBUG ENABLED
+
 #endif // __ARDUCOPTER_CONFIG_H__
