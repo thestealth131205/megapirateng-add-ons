@@ -166,8 +166,6 @@ static void init_arm_motors()
     motors.armed(true);
     set_armed(true);
     
-    auto_disarming_counter = 0;
-
     // reenable failsafe
     failsafe_enable();
 }

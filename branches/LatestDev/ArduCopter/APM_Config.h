@@ -94,9 +94,9 @@
 	GPS_PROTOCOL_AUTO	auto select GPS, may not work
 */
 	
-#define SERIAL0_BAUD			 115200	// Console port 
+#define SERIAL0_BAUD			 115200	// Console port
 #define SERIAL2_BAUD			 115200	// GPS port
-#define SERIAL3_BAUD			 115200	// Telemetry (MAVLINK) port
+#define SERIAL3_BAUD			 57600	// Telemetry (MAVLINK) port
 
 
 ///paku - define LEDs on FIRST firmware upload - could be changed later in Mission Planner

@@ -9,7 +9,27 @@ failsafe_enabled
 ap.failsafe
 freemem
 
+OPTFLOW DISABLED
+
+AP_TIMERPROCESS_MAX_PROCS
+_pidx
+auto_disarming_counter
 arming_counter
+
+	4 294 967 295
+ Time: 393151464 LoopsNo: 1000 LongLoopsNo: 952 MaxTime: 42952 FS_Count: 0  FS_MaxTime: 42576
+ Time: 404749204 LoopsNo: 1000 LongLoopsNo: 955 MaxTime: 42636 FS_Count: 1  FS_MaxTime: 4 294 966 176
+ 																						4 294 967 295
+ Time: 416341368 LoopsNo: 1000 LongLoopsNo: 955 MaxTime: 41720 FS_Count: 1  FS_MaxTime: 41440
+
+
+ Time: 812125760 LoopsNo: 1000 LongLoopsNo: 953 MaxTime: 42636 FS_Count: 0  FS_MaxTime: 42560
+ Time: 823717916 LoopsNo: 1000 LongLoopsNo: 959 MaxTime: 41740 FS_Count: 1  FS_MaxTime: 4294966176
+ Time: 835288288 LoopsNo: 1000 LongLoopsNo: 961 MaxTime: 41552 FS_Count: 1  FS_MaxTime: 41448
+
+
+
+
 
 LED
 PORTE |= (1<<0);

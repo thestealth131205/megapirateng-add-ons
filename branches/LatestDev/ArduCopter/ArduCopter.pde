@@ -982,14 +982,28 @@ void loop()
 			Log_Write_Data(DATA_FAST_LOOP, (int32_t)(timer - fast_loopTimer));
 		#endif
 			
-		//PAKU debug load (ins samples collected) to the cli
+		// check loop time
+		perf_info_check_loop_time(timer - fast_loopTimer);
+		
+#ifdef CLI_DEBUG		
+		//PAKU debug
 		//if (num_samples != 2) {
 		//       cliSerial->printf("\nnum_samples=%u\n", (unsigned)num_samples);
 		//}			
-			
-		
-		// check loop time
-		perf_info_check_loop_time(timer - fast_loopTimer);
+					
+		if (perf_mon_counter >= 500 ){
+			cliSerial->printf("\n\n Time: %lu LoopsNo: %u LongLoopsNo: %u MaxTime: %lu FS_Count: %u  FS_MaxTime: %lu\n\n",
+					timer,
+					(unsigned) perf_info_get_num_loops(),
+					(unsigned) perf_info_get_num_long_running(), 
+					perf_info_get_max_time(),
+					(unsigned) get_failsafe_disarm_counter(),						
+					 get_failsafe_max_timestamp()
+					);
+			perf_info_reset();
+			perf_mon_counter 		= 0;				
+		}
+#endif		
 
 		G_Dt = (float)(timer - fast_loopTimer) / 1000000.f;		// used by PI Loops
 		fast_loopTimer = timer;
@@ -1036,6 +1050,8 @@ void loop()
 				counter_one_herz = 0;
 			}
 			perf_mon_counter++;
+
+#ifndef CLI_DEBUG			
 			if (perf_mon_counter >= 500 ) {     // 500 iterations at 50hz = 10 seconds
 				if (g.log_bitmask & MASK_LOG_PM)
 					Log_Write_Performance();
@@ -1043,6 +1059,7 @@ void loop()
 				gps_fix_count 		= 0;
 				perf_mon_counter 		= 0;
 			}
+#endif		
 		}else{
 			// process communications with the GCS
 			gcs_check();
@@ -1064,19 +1081,6 @@ void loop()
 				compass.accumulate();
 			}
 		}*/
-			//PAKU debug
-/*
-			if (perf_mon_counter >= 2000 ){
-				cliSerial->printf("\n\nLoopsNo: %u LongLoopsNo: %u MaxTime: %u FS_MaxTime: %u\n\n", 
-						(unsigned) perf_info_get_num_loops(),
-						(unsigned) perf_info_get_num_long_running(), 
-						(unsigned) perf_info_get_max_time(),
-						(unsigned) get_failsafe_max_timestamp()
-						);
-				perf_info_reset();
-				perf_mon_counter 		= 0;				
-			}
-*/
 			
 	}
 
