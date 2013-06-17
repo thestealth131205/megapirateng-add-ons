@@ -65,6 +65,13 @@
  	 ENABLED
  */
 
+// WARNING: Limits code is disabled by default now.
+#define AP_LIMITS DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
+
 
 // This OSD works on the Serial1 port
 #define OSD_PROTOCOL OSD_PROTOCOL_FRSKY
@@ -87,7 +94,7 @@
 	GPS_PROTOCOL_AUTO	auto select GPS, may not work
 */
 	
-#define SERIAL0_BAUD			 115200	// Console port 
+#define SERIAL0_BAUD			 115200	// Console port
 #define SERIAL2_BAUD			 115200	// GPS port
 #define SERIAL3_BAUD			 57600	// Telemetry (MAVLINK) port
 
@@ -110,7 +117,7 @@
 
 ///PAKU 
 // motors off delay for STAB mode x/50sec ... give max about 100 = 2 sec
-#define STAB_THR_OFF_DELAY 75
+#define STAB_THR_OFF_DELAY 25
 
 #define FRAME_CONFIG QUAD_FRAME
 /*
