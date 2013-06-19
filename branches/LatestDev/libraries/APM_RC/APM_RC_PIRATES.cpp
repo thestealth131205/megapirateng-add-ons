@@ -53,7 +53,7 @@
 
 
 // Variable definition for Input Capture interrupt
-static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
+static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin
 static bool bv_mode;
 
 static uint8_t *pinRcChannel;
@@ -126,6 +126,7 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 
 
 	curr_time = TCNT5;         // 0.5us resolution
+	sei();
 	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
@@ -220,6 +221,7 @@ void APM_RC_PIRATES::_pwm_mode_isr(void)
 	static uint16_t edgeTime[NUM_CHANNELS];
 
 	curr_time = TCNT5;        // from sonar
+	sei();
 	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
 	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates which pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]

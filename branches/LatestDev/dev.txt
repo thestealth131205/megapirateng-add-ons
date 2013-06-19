@@ -16,6 +16,19 @@ _pidx
 auto_disarming_counter
 arming_counter
 
+piezo
+ERR
+learn
+
+ConfigRegA
+AP_Compass_HMC5843_Pirates::re_initialise()
+init_hardware
+warm
+
+calculate_heading
+
+ MPU6K_FILTER
+
 	4 294 967 295
  Time: 393151464 LoopsNo: 1000 LongLoopsNo: 952 MaxTime: 42952 FS_Count: 0  FS_MaxTime: 42576
  Time: 404749204 LoopsNo: 1000 LongLoopsNo: 955 MaxTime: 42636 FS_Count: 1  FS_MaxTime: 4 294 966 176
@@ -51,165 +64,60 @@ value =
 ap.value
 AP_STATE
 
+
 auto_disarming_counter
 
-static void Log_Write_Control_Tuning()
-{
-    DataFlash.WriteByte(HEAD_BYTE1);
-    DataFlash.WriteByte(HEAD_BYTE2);
-    DataFlash.WriteByte(LOG_CONTROL_TUNING_MSG);
+field
 
-    DataFlash.WriteInt(g.rc_3.control_in);                 	// 1
-    DataFlash.WriteInt(sonar_alt);                          // 2
-    DataFlash.WriteInt(baro_alt);                           // 3
-    DataFlash.WriteInt(next_WP.alt);                        // 4
-    DataFlash.WriteInt(nav_throttle);                       // 5
-    DataFlash.WriteInt(angle_boost);                        // 6
-    DataFlash.WriteInt(climb_rate);                 	    // 7
-    DataFlash.WriteInt(g.rc_3.servo_out);                  	// 8
-    DataFlash.WriteInt(desired_climb_rate);                  // 9
+ timer 256 -50 
+ Time: 278009360 LoopsNo: 1000 LongLoopsNo: 961 MaxTime: 42632 FS_Calls 14497 FS_Count: 0  FS_MaxTime: 42400
+ Time: 289652620 LoopsNo: 1000 LongLoopsNo: 974 MaxTime: 43000 FS_Calls 14553 FS_Count: 0  FS_MaxTime: 43200
+ Time: 301233612 LoopsNo: 1000 LongLoopsNo: 954 MaxTime: 43848 FS_Calls 14476 FS_Count: 0  FS_MaxTime: 43200
 
 
-
-
-
-
->=2 DISARMS 57600
-LoopsNo: 4000 LongLoopsNo: 823 MaxTime: 42488 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 862 MaxTime: 41884 FS_MaxTime: 41668
-
->=2 DISARMS 38400
-LoopsNo: 4000 LongLoopsNo: 820 MaxTime: 7040 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 849 MaxTime: 6432 FS_MaxTime: 6896
-LoopsNo: 4000 LongLoopsNo: 872 MaxTime: 6944 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 877 MaxTime: 7080 FS_MaxTime: 6880
-LoopsNo: 3999 LongLoopsNo: 845 MaxTime: 13624 FS_MaxTime: 6880 << just after MAVLink restarted.
-
-
-LoopsNo: 4000 LongLoopsNo: 872 MaxTime: 6944 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 877 MaxTime: 7080 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 852 MaxTime: 6424 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 815 MaxTime: 6448 FS_MaxTime: 6880
-barometer calibration complete
-LoopsNo: 4001 LongLoopsNo: 863 MaxTime: 13976 FS_MaxTime: 6880
-LoopsNo: 3999 LongLoopsNo: 845 MaxTime: 13624 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 829 MaxTime: 42544 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 42572 FS_MaxTime: 42660
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 42572 FS_MaxTime: 42660
-LoopsNo: 4000 LongLoopsNo: 849 MaxTime: 42540 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 867 MaxTime: 42532 FS_MaxTime: 41688
-LoopsNo: 4000 LongLoopsNo: 858 MaxTime: 42456 FS_MaxTime: 41668
-LoopsNo: 4001 LongLoopsNo: 810 MaxTime: 42476 FS_MaxTime: 42656
-LoopsNo: 3999 LongLoopsNo: 843 MaxTime: 42332 FS_MaxTime: 41688
-LoopsNo: 4000 LongLoopsNo: 853 MaxTime: 42520 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 822 MaxTime: 42392 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 824 MaxTime: 43020 FS_MaxTime: 43648
-LoopsNo: 4000 LongLoopsNo: 837 MaxTime: 42712 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 795 MaxTime: 42488 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 863 MaxTime: 42256 FS_MaxTime: 41684
-
-
->=2 115200 NO disarm for 45min
-LoopsNo: 3999 LongLoopsNo: 870 MaxTime: 16564 FS_MaxTime: 59840
-LoopsNo: 4000 LongLoopsNo: 845 MaxTime: 5948 FS_MaxTime: 6872
-LoopsNo: 4000 LongLoopsNo: 858 MaxTime: 41608 FS_MaxTime: 41668
-LoopsNo: 4000 LongLoopsNo: 861 MaxTime: 41648 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 834 MaxTime: 41828 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 855 MaxTime: 41740 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 854 MaxTime: 41744 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 832 MaxTime: 41740 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 829 MaxTime: 41748 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 873 MaxTime: 41600 FS_MaxTime: 41672
-LoopsNo: 4000 LongLoopsNo: 858 MaxTime: 41556 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 833 MaxTime: 41524 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 854 MaxTime: 41656 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 877 MaxTime: 41652 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 869 MaxTime: 41608 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 854 MaxTime: 41616 FS_MaxTime: 41664
-LoopsNo: 4001 LongLoopsNo: 850 MaxTime: 41636 FS_MaxTime: 41664
-LoopsNo: 3999 LongLoopsNo: 831 MaxTime: 41752 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 856 MaxTime: 41640 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 862 MaxTime: 41608 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 847 MaxTime: 41632 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 849 MaxTime: 41664 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 855 MaxTime: 41608 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 828 MaxTime: 41656 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 866 MaxTime: 41520 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 876 MaxTime: 41448 FS_MaxTime: 41664
-LoopsNo: 4000 LongLoopsNo: 837 MaxTime: 41652 FS_MaxTime: 41668
-GROUND STARTfÙInit Gyro 
-----------------------------------------
-G_off: 0.03, -0.03, -0.01
-A_off: 0.00, 0.00, 0.00 A_scale: 1.00, 1.00, 1.00
-barometer calibration completeþ 
-LoopsNo: 4000 LongLoopsNo: 834 MaxTime: 6732 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 879 MaxTime: 42460 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 833 MaxTime: 42560 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 837 MaxTime: 43000 FS_MaxTime: 43648
-LoopsNo: 4000 LongLoopsNo: 869 MaxTime: 42540 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 807 MaxTime: 42580 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 853 MaxTime: 42992 FS_MaxTime: 43648
-LoopsNo: 4000 LongLoopsNo: 808 MaxTime: 42660 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 7356 FS_MaxTime: 6896
-LoopsNo: 4000 LongLoopsNo: 852 MaxTime: 6816 FS_MaxTime: 6884
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 7696 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 870 MaxTime: 6836 FS_MaxTime: 6888
-
-
-
-
-
-Init BETA MegaPirateNG Add-Ons V2.9.1b final R8.142 2013/06/15
-þ3ýGROUND STARTÌInit Gyroþ      QÄ.*þ   Q.P*þ   QÓINS
-----------------------------------------
-G_off: 0.03, -0.03, -0.01
-A_off: 0.00, 0.00, 0.00 A_scale: 1.00, 1.00, 1.00
-Ready to FLY þ  Qú­þ   Q2þ              QôLþ
-G_off: 0.03, -0.03, -0.01
-A_off: 0.00, 0.00, 0.00 A_scale: 1.00, 1.00, 1.00
-þ       0QŽþ31ýbarometer calibration complete5¯þ        2QÁSþ   3Q+-þ   4Q]þ   5QF#þ   6Qx 
-LoopsNo: 3999 LongLoopsNo: 862 MaxTime: 16604 FS_MaxTime: 60852
-LoopsNo: 4000 LongLoopsNo: 880 MaxTime: 5656 FS_MaxTime: 5884
-LoopsNo: 4000 LongLoopsNo: 888 MaxTime: 5632 FS_MaxTime: 5888 
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 5632 FS_MaxTime: 5880
-DISARM
-REARMING
-barometer calibration complete
-LoopsNo: 4000 LongLoopsNo: 851 MaxTime: 45452 FS_MaxTime: 43648
-LoopsNo: 4000 LongLoopsNo: 854 MaxTime: 42624 FS_MaxTime: 42656
-LoopsNo: 4000 LongLoopsNo: 877 MaxTime: 41752 FS_MaxTime: 41668
-LoopsNo: 4000 LongLoopsNo: 856 MaxTime: 41624 FS_MaxTime: 41668
-DISARM
-REARMING
-LoopsNo: 4000 LongLoopsNo: 851 MaxTime: 41664 FS_MaxTime: 41680
-LoopsNo: 4000 LongLoopsNo: 871 MaxTime: 41644 FS_MaxTime: 41668
-LoopsNo: 4000 LongLoopsNo: 862 MaxTime: 52256 FS_MaxTime: 43640
-LoopsNo: 4000 LongLoopsNo: 855 MaxTime: 7044 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 822 MaxTime: 6732 FS_MaxTime: 5888
-LoopsNo: 4000 LongLoopsNo: 860 MaxTime: 6780 FS_MaxTime: 5888
-LoopsNo: 4002 LongLoopsNo: 859 MaxTime: 6344 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 854 MaxTime: 6968 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 842 MaxTime: 6768 FS_MaxTime: 5888
-
-
-
-57600 128
-load_all took 5972us
-þ       QBþ3ýbarometer calibration complete>
-LoopsNo: 3999 LongLoopsNo: 891 MaxTime: 16576 FS_MaxTime: 59840
-LoopsNo: 4000 LongLoopsNo: 835 MaxTime: 7240 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 831 MaxTime: 7328 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 849 MaxTime: 7840 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 882 MaxTime: 7784 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 852 MaxTime: 7820 FS_MaxTime: 6880
-LoopsNo: 4001 LongLoopsNo: 853 MaxTime: 6912 FS_MaxTime: 6880
-oopsNo: 3999 LongLoopsNo: 835 MaxTime: 7240 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 852 MaxTime: 7256 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 856 MaxTime: 7624 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 850 MaxTime: 7664 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 856 MaxTime: 7648 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 859 MaxTime: 7624 FS_MaxTime: 7872
-LoopsNo: 4000 LongLoopsNo: 835 MaxTime: 6932 FS_MaxTime: 6880
-LoopsNo: 4000 LongLoopsNo: 839 MaxTime: 6896 FS_MaxTime: 6880
-
-
+  timer 256 -62
+ Time: 72307824 LoopsNo: 1000 LongLoopsNo: 222 MaxTime: 4922444 FS_Calls 15325 FS_Count: 0  FS_MaxTime: 41676
+ Time: 82574988 LoopsNo: 1000 LongLoopsNo: 208 MaxTime: 42980 FS_Calls 10345 FS_Count: 0  FS_MaxTime: 43648
+ Time: 92825800 LoopsNo: 1000 LongLoopsNo: 235 MaxTime: 72652 FS_Calls 10330 FS_Count: 0  FS_MaxTime: 72424
+ Time: 103128528 LoopsNo: 1000 LongLoopsNo: 208 MaxTime: 42504 FS_Calls 10385 FS_Count: 0  FS_MaxTime: 41664
+ Time: 113371104 LoopsNo: 1000 LongLoopsNo: 227 MaxTime: 42520 FS_Calls 10325 FS_Count: 0  FS_MaxTime: 41664
+  
+  timer 256 -62 +sei cppm
+ Time: 64767024 LoopsNo: 1000 LongLoopsNo: 232 MaxTime: 43156 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 42640
+ Time: 75588236 LoopsNo: 1000 LongLoopsNo: 229 MaxTime: 43284 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 43680
+ Time: 86410368 LoopsNo: 1000 LongLoopsNo: 243 MaxTime: 43036 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 43680
+ Time: 97231256 LoopsNo: 1000 LongLoopsNo: 235 MaxTime: 42848 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 42640
+ Time: 108052760 LoopsNo: 1000 LongLoopsNo: 232 MaxTime: 43036 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 43680
+ 
+ 
+ timer 256 -62 +sei cppm _sched optimized
+ Time: 2656494272 LoopsNo: 1000 LongLoopsNo: 224 MaxTime: 41128 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ Time: 2667284268 LoopsNo: 1000 LongLoopsNo: 221 MaxTime: 41308 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ Time: 2678073648 LoopsNo: 1000 LongLoopsNo: 232 MaxTime: 41164 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ Time: 2688864272 LoopsNo: 1000 LongLoopsNo: 217 MaxTime: 40844 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ Time: 2699654264 LoopsNo: 1000 LongLoopsNo: 217 MaxTime: 41480 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ Time: 2710444264 LoopsNo: 1000 LongLoopsNo: 212 MaxTime: 41412 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
+ 
+ 
+ 
+ timer 256 -70
+ Time: 114687680 LoopsNo: 1000 LongLoopsNo: 958 MaxTime: 42632 FS_Calls 10345 FS_Count: 0  FS_MaxTime: 42560
+ Time: 126330288 LoopsNo: 1000 LongLoopsNo: 966 MaxTime: 43276 FS_Calls 10395 FS_Count: 0  FS_MaxTime: 43680
+ Time: 137933624 LoopsNo: 1000 LongLoopsNo: 963 MaxTime: 42644 FS_Calls 10360 FS_Count: 0  FS_MaxTime: 42560
+ Time: 149531428 LoopsNo: 1000 LongLoopsNo: 950 MaxTime: 43108 FS_Calls 10355 FS_Count: 0  FS_MaxTime: 42560
+ Time: 161168400 LoopsNo: 1000 LongLoopsNo: 961 MaxTime: 42708 FS_Calls 10390 FS_Count: 0  FS_MaxTime: 42560
+ Time: 172743180 LoopsNo: 1000 LongLoopsNo: 955 MaxTime: 42656 FS_Calls 10335 FS_Count: 0  FS_MaxTime: 42560
+ 
+  timer 256 -200
+ Time: 45859568 LoopsNo: 1000 LongLoopsNo: 988 MaxTime: 42460 FS_Calls 4114 FS_Count: 5  FS_MaxTime: 41600
+ Time: 59043624 LoopsNo: 1000 LongLoopsNo: 991 MaxTime: 70692 FS_Calls 4120 FS_Count: 5  FS_MaxTime: 70400
+ Time: 72189260 LoopsNo: 1000 LongLoopsNo: 990 MaxTime: 40092 FS_Calls 4108 FS_Count: 5  FS_MaxTime: 38400
+ barometer calibration complete
+ Time: 90813368 LoopsNo: 1000 LongLoopsNo: 985 MaxTime: 5444400 FS_Calls 5820 FS_Count: 0  FS_MaxTime: 41600
+ Time: 104002224 LoopsNo: 1000 LongLoopsNo: 990 MaxTime: 42240 FS_Calls 4121 FS_Count: 0  FS_MaxTime: 41616
+ Time: 117155892 LoopsNo: 1000 LongLoopsNo: 986 MaxTime: 41884 FS_Calls 4111 FS_Count: 0  FS_MaxTime: 41600
+ Time: 130332960 LoopsNo: 1000 LongLoopsNo: 987 MaxTime: 42340 FS_Calls 4118 FS_Count: 0  FS_MaxTime: 41600
+ Time: 143504804 LoopsNo: 1000 LongLoopsNo: 987 MaxTime: 42672 FS_Calls 4116 FS_Count: 0  FS_MaxTime: 41600
+ 
+ 
+ 

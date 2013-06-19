@@ -9,8 +9,11 @@
 static bool failsafe_enabled = true;
 static uint16_t failsafe_last_mainLoop_count;
 static uint32_t failsafe_last_timestamp;
+
 static uint32_t failsafe_max_timestamp;
-static uint16_t failsafe_disarm_counter;
+static uint32_t failsafe_disarm_counter;
+static uint32_t failsafe_call_counter;
+
 static bool in_failsafe;
 
 //
@@ -40,22 +43,23 @@ void failsafe_check(uint32_t tnow)
 	
 	uint32_t dtnow = 0;
 	
-	if (tnow > failsafe_last_timestamp)
-		dtnow = tnow -failsafe_last_timestamp;
-
-#ifdef CLI_DEBUG	
-    
-	if(failsafe_max_timestamp < dtnow)
-    	failsafe_max_timestamp = dtnow;
-#endif 
-	
     if (mainLoop_count != failsafe_last_mainLoop_count) {
         // the main loop is running, all is OK
         failsafe_last_mainLoop_count = mainLoop_count;
         failsafe_last_timestamp = tnow;
         in_failsafe = false;
         return;
-    }
+    } else
+    if (tnow < failsafe_last_timestamp)
+    	return;
+    else    	
+		dtnow = tnow -failsafe_last_timestamp;    	
+
+#ifdef CLI_DEBUG	
+	failsafe_call_counter++;
+	if(failsafe_max_timestamp < dtnow)
+    	failsafe_max_timestamp = dtnow;
+#endif     
 
     if (failsafe_enabled && dtnow > 2000000) {
         // motors are running but we have gone 2 second since the
@@ -86,7 +90,17 @@ uint32_t get_failsafe_max_timestamp()
     return temp;
 }
 
-uint16_t get_failsafe_disarm_counter()
+uint32_t get_failsafe_disarm_counter()
 {
     return failsafe_disarm_counter;
 }
+
+
+uint32_t get_failsafe_call_counter()
+{
+
+	uint32_t temp=failsafe_call_counter;
+	failsafe_call_counter=0;
+    return temp;
+}
+

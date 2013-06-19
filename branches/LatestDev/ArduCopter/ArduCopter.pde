@@ -992,13 +992,14 @@ void loop()
 		//}			
 					
 		if (perf_mon_counter >= 500 ){
-			cliSerial->printf("\n\n Time: %lu LoopsNo: %u LongLoopsNo: %u MaxTime: %lu FS_Count: %u  FS_MaxTime: %lu\n\n",
+			cliSerial->printf("\n\n Time: %lu LoopsNo: %u LongLoopsNo: %u MaxTime: %lu FS_Calls %lu FS_Count: %lu  FS_MaxTime: %lu\n\n",
 					timer,
 					(unsigned) perf_info_get_num_loops(),
 					(unsigned) perf_info_get_num_long_running(), 
 					perf_info_get_max_time(),
-					(unsigned) get_failsafe_disarm_counter(),						
-					 get_failsafe_max_timestamp()
+					get_failsafe_call_counter(),
+					get_failsafe_disarm_counter(),						
+					get_failsafe_max_timestamp()
 					);
 			perf_info_reset();
 			perf_mon_counter 		= 0;				
@@ -1414,7 +1415,8 @@ static void super_slow_loop()
 
 	// this function disarms the copter if it has been sitting on the ground for any moment of time greater than 25 seconds
 	// but only of the control mode is manual
-	if((control_mode <= ACRO) && (g.rc_3.control_in == 0)){
+	///if((control_mode <= ACRO) && (g.rc_3.control_in == 0)){
+	if((control_mode <= ACRO) && (g.rc_3.control_in == 0) && motors.armed()) {		
 		auto_disarming_counter++;
 
 		if(auto_disarming_counter == AUTO_DISARMING_DELAY){
