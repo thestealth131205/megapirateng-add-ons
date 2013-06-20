@@ -981,27 +981,6 @@ void loop()
 		// check loop time
 		perf_info_check_loop_time(timer - fast_loopTimer);
 		
-#ifdef CLI_DEBUG		
-		//PAKU debug
-		//if (num_samples != 2) {
-		//       cliSerial->printf("\nnum_samples=%u\n", (unsigned)num_samples);
-		//}			
-					
-		if (perf_mon_counter >= 500 ){
-			cliSerial->printf("\n\n Time: %lu LoopsNo: %u LongLoopsNo: %u MaxTime: %lu FS_Calls %lu FS_Count: %lu  FS_MaxTime: %lu\n\n",
-					timer,
-					(unsigned) perf_info_get_num_loops(),
-					(unsigned) perf_info_get_num_long_running(), 
-					perf_info_get_max_time(),
-					get_failsafe_call_counter(),
-					get_failsafe_disarm_counter(),						
-					get_failsafe_max_timestamp()
-					);
-			perf_info_reset();
-			perf_mon_counter 		= 0;				
-		}
-#endif		
-
 		G_Dt = (float)(timer - fast_loopTimer) / 1000000.f;		// used by PI Loops
 		fast_loopTimer = timer;
 
@@ -1047,8 +1026,28 @@ void loop()
 				counter_one_herz = 0;
 			}
 			perf_mon_counter++;
-
-#ifndef CLI_DEBUG			
+			
+#ifdef CLI_DEBUG		
+			//PAKU debug
+			//if (num_samples != 2) {
+			//       cliSerial->printf("\nnum_samples=%u\n", (unsigned)num_samples);
+			//}			
+					
+			if (perf_mon_counter >= 100 ){
+				cliSerial->printf("\n\n Time: %lu LoopsNo: %u LongLoopsNo: %u MaxTime: %lu FS_Calls %lu FS_Count: %lu  FS_MaxTime: %lu\n\n",
+					(unsigned long)timer,
+					(unsigned) perf_info_get_num_loops(),
+					(unsigned) perf_info_get_num_long_running(), 
+					(unsigned long) perf_info_get_max_time(),
+					(unsigned long) get_failsafe_call_counter(),
+					(unsigned long) get_failsafe_disarm_counter(),						
+					(unsigned long) get_failsafe_max_timestamp()
+					);
+				perf_info_reset();
+				gps_fix_count 		= 0;				
+				perf_mon_counter 		= 0;				
+			}
+#else	
 			if (perf_mon_counter >= 500 ) {     // 500 iterations at 50hz = 10 seconds
 				if (g.log_bitmask & MASK_LOG_PM)
 					Log_Write_Performance();
@@ -1172,7 +1171,7 @@ static void medium_loop()
 		//------------------------------------------------
 		case 1:
 			medium_loopCounter++;
-        read_receiver_rssi();
+			read_receiver_rssi();
 			break;
 
 		// command processing
