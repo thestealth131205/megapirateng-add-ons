@@ -47,7 +47,7 @@
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
 //### PAKU #########################################################################
-// Below there are two CPU stress optimization defines.
+// Below there are CPU stress optimization defines.
 // Leave Sonar and Gimbal DISABLED if you are not going to use it.
 //##################################################################################
 // WARNING: Sonar is fully disabled by default now.
