@@ -19,7 +19,7 @@ arming_counter
 piezo
 ERR
 learn
-
+cliSerial->
 ConfigRegA
 AP_Compass_HMC5843_Pirates::re_initialise()
 init_hardware
@@ -65,7 +65,7 @@ ap.value
 AP_STATE
 
 gcs0
-
+256
 
 auto_disarming_counter
 

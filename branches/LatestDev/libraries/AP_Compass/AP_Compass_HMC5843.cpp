@@ -143,7 +143,10 @@ bool AP_Compass_HMC5843::re_initialise()
     if (!write_register(ConfigRegA, _base_config) ||
         !write_register(ConfigRegB, magGain) ||
         !write_register(ModeRegister, ContinuousConversion))
+    {
+    	Serial.println("Err: Compass HMC5843 RegA Re-Init Error\n");
         return false;
+    }
     return true;
 }
 
@@ -164,6 +167,7 @@ AP_Compass_HMC5843::init()
     // determine if we are using 5843 or 5883L
     if (!write_register(ConfigRegA, SampleAveraging_8<<5 | DataOutputRate_75HZ<<2 | NormalOperation) ||
         !read_register(ConfigRegA, &_base_config)) {
+    	Serial.println("Err: Compass HMC5843 RegA Config Error\n");
         healthy = false;
         return false;
     }
