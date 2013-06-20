@@ -3,4 +3,4 @@
 /// @file	AP_Compass.h
 /// @brief	Catch-all header that defines all supported compass classes.
 
-#include "AP_Compass_HMC5843_Pirates.h"
+#include "AP_Compass_HMC5843.h"

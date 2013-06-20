@@ -15,9 +15,8 @@ const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
 // Note that the Vector/Matrix constructors already implicitly zero
 // their values.
 //
-bool Compass::healthy = false;        ///< true if last read OKint Compass::product_id = AP_COMPASS_TYPE_UNKNOWN;
-int Compass::product_id = AP_COMPASS_TYPE_UNKNOWN;
 Compass::Compass(void) :
+    product_id(AP_COMPASS_TYPE_UNKNOWN),
     _orientation(ROTATION_NONE),
     _null_init_done(false)
 {

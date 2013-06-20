@@ -64,10 +64,18 @@ value =
 ap.value
 AP_STATE
 
+gcs0
+
 
 auto_disarming_counter
 
 field
+
+healthy
+
+timer_scheduler.resume_timer();
+
+barometer.read
 
  timer 256 -50 
  Time: 278009360 LoopsNo: 1000 LongLoopsNo: 961 MaxTime: 42632 FS_Calls 14497 FS_Count: 0  FS_MaxTime: 42400
@@ -90,7 +98,7 @@ field
  Time: 108052760 LoopsNo: 1000 LongLoopsNo: 232 MaxTime: 43036 FS_Calls 10405 FS_Count: 0  FS_MaxTime: 43680
  
  
- timer 256 -62 +sei cppm _sched optimized
+ timer 256 -65 +sei cppm _sched optimized
  Time: 2656494272 LoopsNo: 1000 LongLoopsNo: 224 MaxTime: 41128 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
  Time: 2667284268 LoopsNo: 1000 LongLoopsNo: 221 MaxTime: 41308 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520
  Time: 2678073648 LoopsNo: 1000 LongLoopsNo: 232 MaxTime: 41164 FS_Calls 9375 FS_Count: 0  FS_MaxTime: 39520

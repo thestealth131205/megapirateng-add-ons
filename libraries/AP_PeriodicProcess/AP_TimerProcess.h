@@ -6,7 +6,7 @@
 #include "../Arduino_Mega_ISR_Registry/Arduino_Mega_ISR_Registry.h"
 
 // default to 1kHz timer interrupt (256-62)
-#define TIMERPROCESS_PER_DEFAULT (256-65) // 1kHz
+#define TIMERPROCESS_PER_DEFAULT (256-62) // 1kHz
 
 #define AP_TIMERPROCESS_MAX_PROCS 5
 

@@ -1,10 +1,9 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-#ifndef AP_Compass_HMC5843_Pirates_H
-#define AP_Compass_HMC5843_Pirates_H
- 
+#ifndef AP_Compass_HMC5843_H
+#define AP_Compass_HMC5843_H
+
 #include "../AP_Common/AP_Common.h"
 #include "../AP_Math/AP_Math.h"
-#include "../AP_PeriodicProcess/AP_PeriodicProcess.h" 
 
 #include "Compass.h"
 
@@ -45,29 +44,34 @@
 #define AP_COMPASS_SPARKFUN_COMPONENTS_DOWN_PINS_LEFT ROTATION_ROLL_180
 #define AP_COMPASS_SPARKFUN_COMPONENTS_DOWN_PINS_FORWARD_LEFT ROTATION_ROLL_180_YAW_45
 
-class AP_Compass_HMC5843_Pirates : public Compass
+class AP_Compass_HMC5843 : public Compass
 {
-  private:
-	void init_hardware();
-	static bool read_raw(void);
-	static uint8_t _base_config;
-	static bool re_initialise(void);
-	static bool read_register(uint8_t address, uint8_t *value);
-	static bool write_register(uint8_t address, byte value);
-	static long _compass_timer;
-	static int _raw_mag_x;          ///< magnetic field strength along the X axis
-	static int _raw_mag_y;          ///< magnetic field strength along the Y axis
-	static int _raw_mag_z;          ///< magnetic field strength along the Z axis
-	float calibration[3];
+private:
+    float               calibration[3];
+    bool                _initialised;
+    virtual bool        read_raw(void);
+    uint8_t             _base_config;
+    virtual bool        re_initialise(void);
+    bool                read_register(uint8_t address, uint8_t *value);
+    bool                write_register(uint8_t address, byte value);
+    uint32_t            _retry_time; // when unhealthy the millis() value to retry at
 
-  public:
-	AP_Compass_HMC5843_Pirates() : Compass() {}
-  bool init(AP_PeriodicProcess *scheduler);
-	bool init() { return false; };
-	bool read(void);
-	void set_orientation(enum Rotation rotation);
-	static bool _updated;
-	static void _update(uint32_t tnow);
-	void accumulate(void);
+    int16_t			    _mag_x;
+    int16_t			    _mag_y;
+    int16_t			    _mag_z;
+    int16_t             _mag_x_accum;
+    int16_t             _mag_y_accum;
+    int16_t             _mag_z_accum;
+    uint8_t			    _accum_count;
+    uint32_t            _last_accum_time;
+
+public:
+    AP_Compass_HMC5843() : Compass() {
+    }
+    bool        init(void);
+    bool        read(void);
+    void        accumulate(void);
+    void        set_orientation(enum Rotation rotation);
+
 };
 #endif
