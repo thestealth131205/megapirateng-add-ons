@@ -9,6 +9,8 @@ failsafe_enabled
 ap.failsafe
 freemem
 
+
+
 OPTFLOW DISABLED
 
 AP_TIMERPROCESS_MAX_PROCS
@@ -25,7 +27,14 @@ AP_Compass_HMC5843_Pirates::re_initialise()
 init_hardware
 warm
 
+init_disarm
+healthy = false
 calculate_heading
+
+
+paku
+climb
+
 
  MPU6K_FILTER
 
@@ -74,6 +83,10 @@ field
 healthy
 
 timer_scheduler.resume_timer();
+
+&timer
+
+I2c.read
 
 barometer.read
 
