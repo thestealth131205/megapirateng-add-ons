@@ -72,16 +72,12 @@ static int16_t read_sonar(void)
 static void init_compass()
 {
 	compass.set_orientation(MAG_ORIENTATION);						// set compass's orientation on aircraft
-	#if CONFIG_APM_HARDWARE == APM_HARDWARE_PIRATES
-		((AP_Compass_HMC5843_Pirates*) &compass)->init(&timer_scheduler);		
-	#else
 	if (!compass.init() || !compass.read()) {
         // make sure we don't pass a broken compass to DCM
         cliSerial->println_P(PSTR("COMPASS INIT ERROR"));
         Log_Write_Error(ERROR_SUBSYSTEM_COMPASS,ERROR_CODE_FAILED_TO_INITIALISE);
         return;
 	    }
-	#endif
 	ahrs.set_compass(&compass);
 #if SECONDARY_DMP_ENABLED == ENABLED
     ahrs2.set_compass(&compass);
