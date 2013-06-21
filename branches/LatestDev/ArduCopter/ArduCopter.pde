@@ -266,7 +266,11 @@ static AP_Int8                *flight_modes = &g.flight_mode1;
 		    AP_Baro_BMP085_Pirates barometer;
 		#endif
 	
+	#if CONFIG_APM_HARDWARE == APM_HARDWARE_PIRATES
+		AP_Compass_HMC5843_Pirates      compass;
+	#else
 		AP_Compass_HMC5843      compass;
+	#endif
 	#endif
 
  #if OPTFLOW == ENABLED
@@ -1064,6 +1068,8 @@ void loop()
 		#ifdef DESKTOP_BUILD
 			usleep(1000);
 		#endif
+//no accumulation for Pirate compass driver
+/*
 			if (timer - fast_loopTimer < 9000) {
 			// we have some spare cycles available
 			// less than 10ms has passed. We have at least one millisecond
@@ -1074,7 +1080,8 @@ void loop()
 			if (g.compass_enabled) {
 				compass.accumulate();
 			}
-		}
+		}*/
+			
 	}
 
 }
@@ -1109,11 +1116,6 @@ static void fast_loop()
     }
 #endif  // OPTFLOW == ENABLED
 
-    // Read radio and 3-position switch on radio
-    // -----------------------------------------
-    read_radio();
-    read_control_switch();
-
 	// custom code/exceptions for flight modes
 	// ---------------------------------------
 	update_yaw_mode();
@@ -1131,6 +1133,10 @@ static void fast_loop()
 
 static void medium_loop()
 {
+	// Read radio and 3-position switch on radio
+	// -----------------------------------------
+	read_radio();
+	read_control_switch();
 
 	// OSD heartbeat at 50Hz
 	#if OSD_PROTOCOL != OSD_PROTOCOL_NONE
@@ -1171,7 +1177,7 @@ static void medium_loop()
 		//------------------------------------------------
 		case 1:
 			medium_loopCounter++;
-			read_receiver_rssi();
+        read_receiver_rssi();
 			break;
 
 		// command processing
@@ -2148,8 +2154,8 @@ static void update_altitude()
     }else{
         // Blend barometer and sonar data together
         float scale;
-        if(baro_alt < 800) {
-            scale = (float)(sonar_alt - 400) / 200.0;
+		if(baro_alt < BARO_TO_SONAR){
+			scale = (float)(sonar_alt - SONAR_TO_BARO_FADE_FROM) / SONAR_TO_BARO_FADE;
 			scale = constrain(scale, 0.0, 1.0);
 			// solve for a blended altitude
 			current_loc.alt = ((float)sonar_alt * (1.0 - scale)) + ((float)baro_alt * scale);

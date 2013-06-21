@@ -16,12 +16,12 @@
 class Compass
 {
 public:
-    int16_t product_id;                         /// product id
+	static int16_t			product_id;     /// product id
 	int16_t         mag_x;          ///< magnetic field strength along the X axis
 	int16_t         mag_y;          ///< magnetic field strength along the Y axis
 	int16_t         mag_z;          ///< magnetic field strength along the Z axis
 	uint32_t        last_update;    ///< micros() time of last update
-    bool healthy;                               ///< true if last read OK
+	static bool			healthy;        ///< true if last read OK
 
 	/// Constructor
 	///
