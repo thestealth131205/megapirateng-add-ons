@@ -5,7 +5,7 @@
 //  we measure the main loop time
 //
 
-#define PERF_INFO_OVERTIME_THRESHOLD_MICROS 10500
+#define PERF_INFO_OVERTIME_THRESHOLD_MICROS 1100
 
 uint16_t perf_info_loop_count;
 uint32_t perf_info_max_time;
