@@ -2,6 +2,7 @@
 ************  THIS IS BETA CODE ************   
     CODE IS UNSTABLE, FLY AT YOUR OWN RISK
     Follow SVN Dev branch log for changes
+    based on mpNG and Arducopter 2.9.1b final
 ********************************************
 
 --------------------------------------------------
