@@ -12,7 +12,9 @@ static int8_t	setup_factory			(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_erase				(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_flightmodes		(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_batt_monitor		(uint8_t argc, const Menu::arg *argv);
+#if CONFIG_SONAR == ENABLED
 static int8_t	setup_sonar				(uint8_t argc, const Menu::arg *argv);
+#endif
 static int8_t	setup_compass			(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_tune				(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_range				(uint8_t argc, const Menu::arg *argv);
@@ -39,7 +41,9 @@ const struct Menu::command setup_menu_commands[] PROGMEM = {
 	{"accel",			setup_accel_scale},
 	{"modes",			setup_flightmodes},
 	{"battery",			setup_batt_monitor},
+#if CONFIG_SONAR == ENABLED
 	{"sonar",			setup_sonar},
+#endif
 	{"compass",			setup_compass},
 	{"tune",			setup_tune},
 	{"range",			setup_range},
@@ -92,7 +96,9 @@ setup_show(uint8_t argc, const Menu::arg *argv)
 	report_radio();
 	report_frame();
 	report_batt_monitor();
+#if CONFIG_SONAR == ENABLED
 	report_sonar();
+#endif
 	//report_gains();
 	//report_xtrack();
 	//report_throttle();
@@ -468,7 +474,7 @@ setup_batt_monitor(uint8_t argc, const Menu::arg *argv)
 	report_batt_monitor();
 	return 0;
 }
-
+#if CONFIG_SONAR == ENABLED
 static int8_t
 setup_sonar(uint8_t argc, const Menu::arg *argv)
 {
@@ -491,6 +497,8 @@ setup_sonar(uint8_t argc, const Menu::arg *argv)
 	report_sonar();
 	return 0;
 }
+#endif
+
 
 #if FRAME_CONFIG == HELI_FRAME
 
@@ -800,6 +808,7 @@ static void report_wp(byte index = 255)
 	}
 }
 
+#if CONFIG_SONAR == ENABLED
 static void report_sonar()
 {
 	cliSerial->printf_P(PSTR("Sonar\n"));
@@ -808,6 +817,8 @@ static void report_sonar()
 	cliSerial->printf_P(PSTR("Type: %d (0=XL, 1=LV, 2=XLL, 3=HRLV)"), (int)g.sonar_type);
 	print_blanks(2);
 }
+#endif
+
 
 static void report_frame()
 {

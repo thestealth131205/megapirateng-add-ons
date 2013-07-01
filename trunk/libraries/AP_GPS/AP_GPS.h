@@ -7,6 +7,7 @@
 #include "AP_GPS_SIRF.h"
 #include "AP_GPS_UBLOX.h"
 #include "AP_GPS_MTK19.h"
+#include "AP_GPS_MTK.h"
 #include "AP_GPS_None.h"
 #include "AP_GPS_Auto.h"
 #include "AP_GPS_BlackVortex.h"

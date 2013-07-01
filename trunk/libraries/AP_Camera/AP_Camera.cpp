@@ -3,7 +3,6 @@
 #include <AP_Camera.h>
 #include <AP_Relay.h>
 #include <../RC_Channel/RC_Channel_aux.h>
-//#include <FastSerial.h>
 
 extern int32_t wp_distance;     // Note: unfortunately this variable is in meter for ArduPlane and cm for ArduCopter
 

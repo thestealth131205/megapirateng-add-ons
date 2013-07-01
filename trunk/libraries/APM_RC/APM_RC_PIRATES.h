@@ -18,7 +18,6 @@
 
 #define SERIAL_PPM_DISABLED 0
 #define SERIAL_PPM_ENABLED 1
-#define SERIAL_PPM_ENABLED_PL1 2
 
 #define FILTER_DISABLED 0
 #define FILTER_AVERAGE 1
@@ -56,7 +55,7 @@ class APM_RC_PIRATES: public APM_RC_Class
 		
   private:
 	int16_t _HIL_override[NUM_CHANNELS];
-	static void _timer5_capt_cb(void);
+	///static void _timer5_capt_cb(void);
 	static void _ppmsum_mode_isr(void);
 	static void _pwm_mode_isr(void);
 };

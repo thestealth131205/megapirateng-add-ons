@@ -20,7 +20,7 @@
  */
 class AP_InertialSensor
 {
-  public:
+public:
     AP_InertialSensor();
 
     enum Start_style {
@@ -103,32 +103,32 @@ class AP_InertialSensor
     // get accel scale
     Vector3f            get_accel_scale() { return _accel_scale; }
 
-  /* Update the sensor data, so that getters are nonblocking.
-   * Returns a bool of whether data was updated or not.
-   */
-  virtual bool update() = 0;
+    /* Update the sensor data, so that getters are nonblocking.
+     * Returns a bool of whether data was updated or not.
+     */
+    virtual bool            update() = 0;
 
-  // check if the sensors have new data
-  virtual bool new_data_available(void) = 0;
+    // check if the sensors have new data
+    virtual bool            new_data_available(void) = 0;
 
-  /* Temperature, in degrees celsius, of the gyro. */
+    /* Temperature, in degrees celsius, of the gyro. */
   virtual float temperature() { return 0; }
 
     /* get_delta_time returns the time period in seconds
      * overwhich the sensor data was collected
-   */
+     */
     virtual float           get_delta_time() { return (float)get_delta_time_micros() * 1.0e-6; }
     virtual uint32_t        get_delta_time_micros() = 0;
 
     // get_last_sample_time_micros returns the time in microseconds that the last sample was taken
     //virtual uint32_t        get_last_sample_time_micros() = 0;
 
-  // return the maximum gyro drift rate in radians/s/s. This
-  // depends on what gyro chips are being used
-  virtual float get_gyro_drift_rate(void) = 0;
+    // return the maximum gyro drift rate in radians/s/s. This
+    // depends on what gyro chips are being used
+    virtual float           get_gyro_drift_rate(void) = 0;
 
     // get number of samples read from the sensors
-    virtual uint16_t     num_samples_available() = 0;
+    virtual uint16_t        num_samples_available() = 0;
 
     // class level parameters
     static const struct AP_Param::GroupInfo var_info[];

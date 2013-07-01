@@ -52,13 +52,8 @@
 #endif
 
 
-// PAKU commented out for better Eclipse view :)
-//#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-//# error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
-//#else
-
 // Variable definition for Input Capture interrupt
-static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin, 2- Use PPM on PL1 (CRIUS v2)
+static uint8_t use_ppm = 0; // 0-Do not use PPM, 1 - Use PPM on A8 pin
 static bool bv_mode;
 
 static uint8_t *pinRcChannel;
@@ -67,7 +62,7 @@ static volatile uint32_t _last_update = 0;
 
 // failsafe counter
 static volatile uint8_t failsafeCnt = 0;
-static bool failsafe_enabled = false;
+static bool Rx_failsafe_enabled = false;
 static volatile bool valid_frame = false;
 
 // ******************
@@ -75,6 +70,8 @@ static volatile bool valid_frame = false;
 // ******************
 static volatile uint16_t rcPinValue[NUM_CHANNELS]; // Default RC values
 static volatile uint16_t rcPinValueRAW[NUM_CHANNELS]; // Default RC values
+
+static uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
 
 //************************************************************************************
 // ISR routines
@@ -88,7 +85,8 @@ ISR(PCINT2_vect) {
 		FireISRRoutine();
 }
 
-static volatile uint16_t OCRxx1[8]={1800,1800,1800,1800,1800,1800,1800,1800};
+#if CONFIG_GIMBAL == ENABLED
+
 // Software PWM generator (used for Gimbal)
 ISR(TIMER5_COMPB_vect)
 { // set the corresponding pin to 1
@@ -110,6 +108,7 @@ ISR(TIMER5_COMPB_vect)
 	}
 	if(OCRstate&1)OCR5B+=5000-OCRxx1[OCRstate>>1]; else OCR5B+=OCRxx1[OCRstate>>1];
 }
+#endif
 
 //************************************************************************************
 
@@ -126,21 +125,11 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 	static bool GotFirstSynch;
 
 
-	switch (use_ppm)
-	{
-		case SERIAL_PPM_ENABLED:
-
-			curr_time = TCNT5;         // 0.5us resolution
-			pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
-			mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
-			PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
-			break;
-		case SERIAL_PPM_ENABLED_PL1:
-			curr_time = ICR5; 		  ///PAKU that's the only diff for V2 and V1 versions :)
-			break;
-		default : curr_time = 0;      // in any case - do nothing
-			break;
-	}
+	curr_time = TCNT5;         // 0.5us resolution
+	sei();
+	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
+	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
+	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
 
 	// Rising edge detection
@@ -224,16 +213,17 @@ void APM_RC_PIRATES::_ppmsum_mode_isr(void)
 
 
 void APM_RC_PIRATES::_pwm_mode_isr(void)
-{ //this ISR is common to every receiver channel, it is call everytime a change state occurs on a digital pin [D2-D7]
+{ //this ISR is common to every receiver channel, it is called every time a state change occurs on a digital pin [D2-D7]
 	uint8_t mask;
 	uint8_t pin;
 	uint16_t curr_time,period_time;
 	static uint8_t PCintLast;
 	static uint16_t edgeTime[NUM_CHANNELS];
 
-	curr_time = TCNT5;         // from sonar
-	pin = PINK;             // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
-	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates wich pin changed
+	curr_time = TCNT5;        // from sonar
+	sei();
+	pin = PINK;               // PINK indicates the state of each PIN for the arduino port dealing with [A8-A15] digital pins (8 bits variable)
+	mask = pin ^ PCintLast;   // doing a ^ between the current interruption and the last one indicates which pin changed
 	PCintLast = pin;          // we memorize the current state of all PINs [D0-D7]
 
 	if (mask != 0) 
@@ -312,34 +302,22 @@ APM_RC_PIRATES::APM_RC_PIRATES(int _use_ppm, int _bv_mode, uint8_t *_pin_map)
 
 void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 {
-	failsafe_enabled = false;
+	Rx_failsafe_enabled = false;
 	failsafeCnt = 0;
 	valid_frame = false;
 	//GotFirstSynch = false;  commented as it's locally static at PPM ISR only, but .... just to remember it's value is important on INIT
-	
-	if (bv_mode) {
-		// BlackVortex Mapping
-		pinMode(32,OUTPUT);	// cam roll PC5 (Digital Pin 32)
-		pinMode(33,OUTPUT);	// cam pitch PC4 (Digital Pin 33)
-	} else {
-		pinMode(44,OUTPUT);	// cam roll PL5 (Digital Pin 44)
-		pinMode(45,OUTPUT);	// cam pitch PL4 (Digital Pin 45)
-	}
-
-	//general servo
-	TCCR5A = 0; //standard mode with overflow at A and OC B and C interrupts
-	TCCR5B = (1<<CS11); //Prescaler set to 8, resolution of 0.5us
-	OCR5B = 3000; // Init OCR registers to nil output signal
 
 	//motors
 	digitalWrite(11,HIGH);
 	pinMode(11,OUTPUT);
 	digitalWrite(11,HIGH);
+
 	digitalWrite(12,HIGH);
 	pinMode(12,OUTPUT);
 	digitalWrite(12,HIGH);
-	TCCR1A = (1<<WGM31); 
-	TCCR1B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
+
+	TCCR1A = (1<<WGM31);  //mode 14 FAST PWM (1110)
+	TCCR1B = (1<<WGM33)|(1<<WGM32)|(1<<CS31); // Clock clk/8 (010)
 	OCR1A = 0xFFFF; 
 	OCR1B = 0xFFFF; 
 	ICR1 = 40000; //50hz freq...Datasheet says  (system_freq/prescaler)/target frequency. So (16000000hz/8)/50hz=40000,
@@ -347,12 +325,15 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	digitalWrite(2,HIGH);
 	pinMode(2,OUTPUT);
 	digitalWrite(2,HIGH);
+
 	digitalWrite(3,HIGH);
 	pinMode(3,OUTPUT);
 	digitalWrite(3,HIGH);
+
 	digitalWrite(5,HIGH);
 	pinMode(5,OUTPUT);
 	digitalWrite(5,HIGH);
+
 	TCCR3A = (1<<WGM31);
 	TCCR3B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
 	OCR3A = 0xFFFF; 
@@ -363,12 +344,15 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	digitalWrite(6,HIGH);
 	pinMode(6,OUTPUT);
 	digitalWrite(6,HIGH);
+
 	digitalWrite(7,HIGH);
 	pinMode(7,OUTPUT);
 	digitalWrite(7,HIGH);
+
 	digitalWrite(8,HIGH);
 	pinMode(8,OUTPUT);
 	digitalWrite(8,HIGH);
+
 	TCCR4A = (1<<WGM31);
 	TCCR4B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
 	OCR4A = 0xFFFF; 
@@ -376,31 +360,45 @@ void APM_RC_PIRATES::Init( Arduino_Mega_ISR_Registry * isr_reg )
 	OCR4C = 0xFFFF; 
 	ICR4 = 40000; //50hz freq
 
-	DDRK = 0;  // defined PORTK as a digital port ([A8-A15] are consired as digital PINs and not analogical)
+	DDRK = 0;  // defined PORTK as a digital port ([A8-A15] are considered as digital PINs - not analog)
+
 	switch (use_ppm)
 	{
 		case SERIAL_PPM_DISABLED:
 					FireISRRoutine = _pwm_mode_isr;
 					PORTK = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); //enable internal pull ups on the PINs of PORTK
 					PCMSK2 = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7); // enable interrupts on A8-A15 pins;
-					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
+					PCICR |= (1 << PCIE2);    // PCINT2 Interrupt enable for masked PINs A8-1A15
 					break;
 		case SERIAL_PPM_ENABLED:  
 					FireISRRoutine = _ppmsum_mode_isr;
 					PORTK = (1<<PCINT16); //enable internal pull up on the SERIAL SUM pin A8
 					PCMSK2 |= (1 << PCINT16); // Enable int for pin A8(PCINT16)
-					PCICR |= (1 << PCIE2); // PCINT2 Interrupt enable
-					break;
-		case SERIAL_PPM_ENABLED_PL1:
-					FireISRRoutine = 0;
-					pinMode(48, INPUT); // ICP5 pin (PL1) (PPM input) CRIUS v2
-					isr_reg->register_signal(ISR_REGISTRY_TIMER5_CAPT, _ppmsum_mode_isr );
-					TCCR5B |= (1<<ICES5); // Input capture on rising edge 
-					TIMSK5 |= (1<<ICIE5); // Enable Input Capture interrupt. Timer interrupt mask  
-					PCMSK2 = 0;	// Disable INT for pin A8-A15
+					PCICR |= (1 << PCIE2);    // PCINT2 Interrupt enable for masked PINs A8
 					break;
 	}
-	TIMSK5 |= (1 << OCIE5B); // Enable timer5 compareB interrupt, used in Gimbal PWM generator
+
+	//Gimbal and Radio PPM/PWM pulses timer
+	TCCR5A = 0; 		//standard mode with overflow at A and OC B and C interrupts
+	TCCR5B = (1<<CS51); //Prescaler set to 8, resolution of 0.5us
+
+#if CONFIG_GIMBAL == ENABLED
+
+	//Gimbal ports init
+	if (bv_mode) {
+		// BlackVortex Mapping
+		pinMode(32,OUTPUT);	// cam roll PC5 (Digital Pin 32)
+		pinMode(33,OUTPUT);	// cam pitch PC4 (Digital Pin 33)
+	} else {
+		pinMode(44,OUTPUT);	// cam roll PL5 (Digital Pin 44)
+		pinMode(45,OUTPUT);	// cam pitch PL4 (Digital Pin 45)
+	}
+
+	OCR5B = 3000; 				// Init OCR registers to nil output signal used for Gimbal - COMPB ISR fires at 3000
+	TIMSK5 |= (1 << OCIE5B); 	// Enable timer5 compareB interrupt, used in Gimbal PWM generator
+
+#endif
+
 }
 
 
@@ -487,7 +485,7 @@ uint16_t APM_RC_PIRATES::InputCh(uint8_t ch)
 	result = rcPinValue[pinRcChannel[ch]];
 
 	#if FS_ENABLED == ENABLED	
-		if(failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
+		if(Rx_failsafe_enabled && (failsafeCnt >= FS_THRESHOLD)) {
 			if (ch == 2) {
 				result = FS_THROTTLE_VALUE;
 			} else if (ch<=3) {
@@ -514,13 +512,13 @@ uint8_t APM_RC_PIRATES::GetState(void)
 	valid_frame = false;				//reset validity on read, just no to read more then once.
 
 	#if FS_ENABLED == ENABLED
-		if(_tmp && !failsafe_enabled)
+		if(_tmp && !Rx_failsafe_enabled)
 		{
 			// Ok, we got first good packet, now we can enable failsafe and start to monitor outputs
-			failsafe_enabled = true;
+			Rx_failsafe_enabled = true;
 		}
 
-		if (failsafe_enabled) {
+		if (Rx_failsafe_enabled) {
 			if(failsafeCnt < FS_THRESHOLD) 
 				failsafeCnt++;
 			else 
@@ -615,5 +613,3 @@ uint32_t APM_RC_PIRATES::get_last_update() {
     return _last_update;
 }; 
 
-/// PAKU endif
-///#endif // defined(ATMega1280)
