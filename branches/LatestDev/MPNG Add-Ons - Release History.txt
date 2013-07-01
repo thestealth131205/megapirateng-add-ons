@@ -1,14 +1,29 @@
-
-************  THIS IS BETA CODE ************   
-    CODE IS UNSTABLE, FLY AT YOUR OWN RISK
-    Follow SVN Dev branch log for changes
-    based on mpNG and Arducopter 2.9.1b final
-********************************************
-
 --------------------------------------------------
 Release History for MPNG-Add-Ons
 --------------------------------------------------
-2013-06-11 	MegaPirateNG Add-Ons V2.9.1 R7.112
+2013-07-01  MegaPirateNG Add-Ons V2.9.1b R8.158
+	Updated to Arducopter 2.9.1b final
+		Improvements over 2.9.1:
+		1) reduce default INS_MPU6K_FILTER to 20hz
+		2) reduce InertialNav Z-axis time constant to 5 (was 7)
+		3) increased max InertialNav accel correction to 3 m/s (was 1m/s)
+		4) bug fix for alt_hold being passed as int16_t to get_throttle_althold_with_slew
+		5) bug fix for throttle after acro flip (was being kept at min throttle if pilot switched out of ACRO mode while inverted)
+		6) reduce yaw_rate P default to 0.20 (was 0.25)
+		7) prevent cli from being entered more than 20seconds after reboot
+		(based on original AC read.me) 
+	
+	Disarm problem identified and solved.
+	CPPM signal on PL1 for AIO v2 removed, all boards use A8 for CPPM (to speed up CPU)
+	Limits (GeoFence) module disabled by default (to speed up CPU)
+	Gimbal module disabled by default (to speed up CPU)
+	GPS drivers updated (NMEA,MTK,U-Blox) to the latest AC code
+	Motors V Frame definition Added (not tested)
+	Scheduler code reverted to the original ArduCopter code
+	Further CPU speed optimization
+	  
+	
+2013-06-11  MegaPirateNG Add-Ons V2.9.1 R7.112
 	OSD_FrSky: Compass/GPS heading added to the LCD Display (RPM field)
 
 2013-06-10 	MegaPirateNG Add-Ons V2.9.1 R7.102 
