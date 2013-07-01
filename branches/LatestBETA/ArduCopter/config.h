@@ -1267,6 +1267,9 @@
  # define INERTIAL_NAV_Z ENABLED
 #endif
 
+//paku
+// Debug main loop and scheduler timing to the cli
+// (update_gps and OSD_FRSKY takes 3 time more then the rest - comment out or disable for true loop data)
 //#define CLI_DEBUG ENABLED
 
 #endif // __ARDUCOPTER_CONFIG_H__

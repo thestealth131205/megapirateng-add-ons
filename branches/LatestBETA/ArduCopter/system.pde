@@ -220,21 +220,11 @@ static void init_ardupilot()
     adc.Init(&timer_scheduler);           // APM ADC library initialization
  #endif // CONFIG_ADC
 
-    barometer.init(&timer_scheduler);
-
 #endif // HIL_MODE
 
 	#if OSD_PROTOCOL != OSD_PROTOCOL_NONE
 		osd_init();
 	#endif 
-
-    // Do GPS init
-    g_gps = &g_gps_driver;
-    // GPS Initialization
-    g_gps->init(GPS::GPS_ENGINE_AIRBORNE_1G);
-
-    if(g.compass_enabled)
-        init_compass();
 
     // init the optical flow sensor
     if(g.optflow_enabled) {
@@ -271,12 +261,6 @@ static void init_ardupilot()
 #endif
 #endif // CLI_ENABLED
 
-#if HIL_MODE != HIL_MODE_ATTITUDE
-    // read Baro pressure at ground
-    //-----------------------------
-    init_barometer();
-#endif
-
     // initialise sonar
 #if CONFIG_SONAR == ENABLED
     init_sonar();
@@ -295,14 +279,35 @@ init_rate_controllers();
     // ---------------------------
     reset_control_switch();
 
+	// Temporary enable scheduler to allow Gyro calibration
+	timer_scheduler.resume_timer();
+	startup_ground();
+	timer_scheduler.suspend_timer();
+
+	if(g.compass_enabled)
+		init_compass();
+
+	barometer.init(&timer_scheduler); 
+	
+	// Start scheduler
+	timer_scheduler.resume_timer();
+
+	#if HIL_MODE != HIL_MODE_ATTITUDE
+	// read Baro pressure at ground
+	//-----------------------------
+		init_barometer();
+	#endif
+
 	// Init LED sequencer
 	#if LED_SEQUENCER == ENABLED
 		sq_led_init();
 	#endif
 
-    startup_ground();
+	// Do GPS init
+	g_gps = &g_gps_driver;
+	g_gps->init(GPS::GPS_ENGINE_AIRBORNE_1G);			// GPS Initialization
+
 #if PIRATES_SENSOR_BOARD == PIRATES_CRIUS_AIO_PRO_V2 
-    // now that initialisation of IMU has occurred increase SPI to 2MHz
     SPI.setClockDivider(SPI_CLOCK_DIV8); // 2MHZ SPI rate
 #endif
 
