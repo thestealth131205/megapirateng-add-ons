@@ -337,7 +337,7 @@
 #endif
 
 #ifndef CONFIG_SONAR
-# define CONFIG_SONAR ENABLED
+# define CONFIG_SONAR DISABLE
 #endif
 
 #ifndef SONAR_ALT_HEALTH_MAX
@@ -870,7 +870,7 @@
 #endif
 
 #ifndef RATE_YAW_P
- # define RATE_YAW_P              	0.25
+ # define RATE_YAW_P              	0.200
 #endif
 #ifndef RATE_YAW_I
  # define RATE_YAW_I              0.015
@@ -1266,5 +1266,10 @@
 #ifndef INERTIAL_NAV_Z
  # define INERTIAL_NAV_Z ENABLED
 #endif
+
+//paku
+// Debug main loop and scheduler timing to the cli
+// (update_gps and OSD_FRSKY takes 3 time more then the rest - comment out or disable for true loop data)
+//#define CLI_DEBUG ENABLED
 
 #endif // __ARDUCOPTER_CONFIG_H__

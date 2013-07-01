@@ -28,7 +28,7 @@ class AP_InertialSensor_Pirates : public AP_InertialSensor
   uint32_t	get_delta_time_micros();
 
   private:
-  static bool read(uint32_t);
+  static void read(uint32_t);
   void hardware_init(Sample_rate sample_rate);
 
   uint32_t _last_sample_micros;

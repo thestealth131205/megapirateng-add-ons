@@ -29,7 +29,7 @@ class AP_Baro_BMP085_Pirates: public AP_Baro
 
 	private:
 	void init_hardware();
-	static bool _update(uint32_t tnow);
+	static void _update(uint32_t tnow);
 
 	// Internal calibration registers
 	int16_t ac1, ac2, ac3, b1, b2, mb, mc, md;

@@ -18,13 +18,11 @@
 // RC configuration
 
 // PPM_SUM(CPPM) Signal processing
-// WARRING: Sonar is full disabled by default now.
-// But for PPM on PL1 (v2) or PWM Rx mode you have to enable sonar - few lines below.
+
 #define SERIAL_PPM SERIAL_PPM_ENABLED
 /*
-	SERIAL_PPM_DISABLED
-	SERIAL_PPM_ENABLED				// For all boards, PPM_SUM pin is A8
-	SERIAL_PPM_ENABLED_PL1		// Use for CRIUS AIOP Pro v2,
+	SERIAL_PPM_DISABLED             // Std.Rx using more then ONE cable to connect
+	SERIAL_PPM_ENABLED				// For all boards, PPM_SUM pin is A8 (no longer the PL1 is no longer supported for AIO v2)
 */
 
 #define TX_CHANNEL_SET	TX_JR
@@ -48,11 +46,32 @@
 #define COPTER_LEDS ENABLED				// Native ArduCopter LEDs
 //#define LED_SEQUENCER ENABLED		// Old Syberian's LED Sequencer, see leds.pde for more info
 
-// PAKU warrning DISABLING sonar makes PPM on PL1 unusable for V2 board (as well as PWM mode for all boards).
-// if you use v2 board or PWM - you have to ENABLE sonar here - but you can disable it in MP - if not used
-// comment 1 line below to re-enable.
+//### PAKU #########################################################################
+// Below there are CPU stress optimization defines.
+// Leave Sonar and Gimbal DISABLED if you are not going to use it.
+//##################################################################################
+// WARNING: Sonar is fully disabled by default now.
 #define CONFIG_SONAR DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
 #define MAX_SONAR_RANGE 400
+
+// WARNING: Gimbal is fully disabled by default now.
+#define CONFIG_GIMBAL DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
+
+// WARNING: Limits code is disabled by default now.
+#define AP_LIMITS DISABLED
+/*
+ 	 DISABLED
+ 	 ENABLED
+ */
+
 
 // This OSD works on the Serial1 port
 #define OSD_PROTOCOL OSD_PROTOCOL_FRSKY
@@ -75,7 +94,7 @@
 	GPS_PROTOCOL_AUTO	auto select GPS, may not work
 */
 	
-#define SERIAL0_BAUD			 115200	// Console port 
+#define SERIAL0_BAUD			 115200	// Console port
 #define SERIAL2_BAUD			 115200	// GPS port
 #define SERIAL3_BAUD			 57600	// Telemetry (MAVLINK) port
 
@@ -98,7 +117,7 @@
 
 ///PAKU 
 // motors off delay for STAB mode x/50sec ... give max about 100 = 2 sec
-#define STAB_THR_OFF_DELAY 75
+#define STAB_THR_OFF_DELAY 25
 
 #define FRAME_CONFIG QUAD_FRAME
 /*

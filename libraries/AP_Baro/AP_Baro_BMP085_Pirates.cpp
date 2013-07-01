@@ -76,10 +76,10 @@ static volatile uint32_t _baro_read_timeout = READ_TEMP_TIMEOUT;
 
 // Read the sensor. This is a state machine
 // We read Temperature (state=1) and then Pressure (state!=1) on alternate calls
-bool AP_Baro_BMP085_Pirates::_update(uint32_t tnow)
+void AP_Baro_BMP085_Pirates::_update(uint32_t tnow)
 {
     if (tnow - _baro_timer < _baro_read_timeout) {
-	    return false; // wait for more than 10ms
+	    return; // wait for more than 10ms
     }
 
     _baro_timer = tnow;
@@ -98,7 +98,7 @@ bool AP_Baro_BMP085_Pirates::_update(uint32_t tnow)
                 Command_ReadPress();                            // next iteration we will read pressure
             }
     }
-    return true;
+    return;
 }
 
 uint8_t AP_Baro_BMP085_Pirates::read()

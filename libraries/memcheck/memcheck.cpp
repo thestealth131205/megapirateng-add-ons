@@ -16,7 +16,7 @@ extern unsigned __brkval;
 /*
  *  return the current stack pointer
  */
-static __attribute__((noinline)) const uint32_t *current_stackptr(void) 
+static __attribute__((noinline)) const uint32_t *current_stackptr(void)
 {
     return (const uint32_t *)__builtin_frame_address(0);
 }

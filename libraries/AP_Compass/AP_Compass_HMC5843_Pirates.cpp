@@ -267,21 +267,21 @@ void AP_Compass_HMC5843_Pirates::init_hardware()
 long AP_Compass_HMC5843_Pirates::_compass_timer = 0;
 
 // Read Sensor data
-bool AP_Compass_HMC5843_Pirates::_update(uint32_t tnow)
+void AP_Compass_HMC5843_Pirates::_update(uint32_t tnow)
 {
 	if (tnow - _compass_timer < 13500) {
-		return false; // wait for more than 13.5ms, 75Hz
+		return; // wait for more than 13.5ms, 75Hz
 	}
 	
 	_compass_timer = tnow;
 
 	if (!_updated) {
 		if (!healthy && !re_initialise()) {
-			return true;
+			return;
 		}
 		_updated = read_raw();
 	}
-	return true;
+	return;
 }
 
 // Read Sensor data

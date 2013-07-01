@@ -78,7 +78,7 @@ AP_GPS_MTK19::read(void)
         // read the next byte
         data = _port->read();
 
-restart:
+
         switch(_step) {
 
         // Message preamble, class, ID detection
